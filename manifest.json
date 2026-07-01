@@ -2,7 +2,7 @@
   "name": "Zenith",
   "short_name": "Zenith",
   "description": "Personal progression tracker",
-  "start_url": "/zenith.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#080808",
   "theme_color": "#080808",
