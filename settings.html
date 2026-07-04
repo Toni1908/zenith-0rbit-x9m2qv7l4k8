@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:      #080808;
+    --surface: #101010;
+    --border:  #1c1c1c;
+    --text:    #e0e0e0;
+    --muted:   #444;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+  .wrap { width: 100%; max-width: 460px; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #555;
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  .back-link:hover { color: var(--text); }
+
+  .header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .header-eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-name {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #fff;
+  }
+
+  .section { margin-bottom: 26px; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .field-row { margin-bottom: 12px; }
+  .field-row:last-child { margin-bottom: 0; }
+  .field-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+  input[type="text"] {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 9px 12px;
+  }
+  input[type="text"]:focus { outline: none; border-color: #444; }
+
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .cat-row input {
+    flex: 1;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  .cat-row input:focus { outline: none; border-color: #444; }
+  .cat-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cat-remove {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 4px 6px;
+    flex-shrink: 0;
+  }
+  .cat-remove:hover { color: #e2574f; }
+
+  .add-cat-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 9px 0;
+    border-radius: 8px;
+    border: 1px dashed #333;
+    background: transparent;
+    color: #777;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .add-cat-btn:hover { border-color: #555; color: #aaa; }
+
+  .save-btn {
+    width: 100%;
+    padding: 12px 0;
+    border-radius: 8px;
+    border: none;
+    background: #f2f2f2;
+    color: #0a0a0a;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .save-btn:hover { background: #dcdcdc; }
+
+  .status-msg {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 16px;
+    min-height: 16px;
+    color: #4ade80;
+  }
+
+  .reset-link {
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+    margin-top: 24px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .reset-link:hover { color: #888; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="index.html">&#8592; Hub</a>
+
+  <div class="header">
+    <div class="header-eyebrow">Systems</div>
+    <div class="header-name">Settings</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Currency</div>
+    <div class="section-card">
+      <div class="field-row">
+        <div class="field-label">Symbol used across Cache</div>
+        <input type="text" id="currencyInput" maxlength="3" placeholder="₹">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Cache categories</div>
+    <div class="section-card">
+      <div id="categoryList"></div>
+      <button class="add-cat-btn" id="addCatBtn">+ Add category</button>
+    </div>
+  </div>
+
+  <button class="save-btn" id="saveBtn">Save settings</button>
+  <div class="status-msg" id="statusMsg"></div>
+
+  <div class="reset-link" id="resetLink">Restore defaults</div>
+</div>
+
+<script>
+const SETTINGS_KEY = 'hub_settings';
+const PALETTE = ['#e29e4f', '#4fb2e2', '#4fd68c', '#e2574f', '#8a8a8a', '#c084fc', '#facc15', '#60a5fa', '#f87171', '#34d399'];
+
+const DEFAULT_SETTINGS = {
+  currency: '₹',
+  categories: [
+    { name: 'Food', color: '#e29e4f' },
+    { name: 'Fuel', color: '#4fb2e2' },
+    { name: 'Salary', color: '#4fd68c' },
+    { name: 'Bills', color: '#e2574f' },
+    { name: 'Other expenses', color: '#8a8a8a' }
+  ]
+};
+
+let settings = {};
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    settings = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  } catch (e) {
+    settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  }
+  if (!settings.categories || !settings.categories.length) {
+    settings.categories = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.categories));
+  }
+}
+
+function renderCategories() {
+  const container = document.getElementById('categoryList');
+  container.innerHTML = '';
+  settings.categories.forEach((cat, i) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+    row.innerHTML = `
+      <div class="cat-dot" style="background:${cat.color}"></div>
+      <input type="text" value="${cat.name.replace(/"/g,'&quot;')}" data-idx="${i}">
+      <button class="cat-remove" data-idx="${i}">✕</button>
+    `;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', () => {
+      const idx = Number(input.getAttribute('data-idx'));
+      settings.categories[idx].name = input.value;
+    });
+  });
+  container.querySelectorAll('.cat-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.getAttribute('data-idx'));
+      settings.categories.splice(idx, 1);
+      renderCategories();
+    });
+  });
+}
+
+document.getElementById('addCatBtn').addEventListener('click', () => {
+  const usedColors = settings.categories.map(c => c.color);
+  const nextColor = PALETTE.find(c => !usedColors.includes(c)) || PALETTE[settings.categories.length % PALETTE.length];
+  settings.categories.push({ name: '', color: nextColor });
+  renderCategories();
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  settings.currency = document.getElementById('currencyInput').value.trim() || '₹';
+  settings.categories = settings.categories.filter(c => c.name.trim() !== '');
+  if (!settings.categories.length) settings.categories = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.categories));
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  renderCategories();
+  const msg = document.getElementById('statusMsg');
+  msg.textContent = 'Saved — changes apply next time you open Cache';
+  setTimeout(() => { msg.textContent = ''; }, 2500);
+});
+
+document.getElementById('resetLink').addEventListener('click', () => {
+  if (!confirm('Restore currency and categories to defaults?')) return;
+  settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  document.getElementById('currencyInput').value = settings.currency;
+  renderCategories();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+});
+
+(function init() {
+  loadSettings();
+  document.getElementById('currencyInput').value = settings.currency;
+  renderCategories();
+})();
+</script>
+</body>
+</html>
