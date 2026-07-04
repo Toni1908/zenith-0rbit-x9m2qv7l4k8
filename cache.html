@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cache</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0a0a0a;
+    color: #f2f2f2;
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 60px;
+  }
+  .app { width: 100%; max-width: 460px; }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .brand-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .brand-tag {
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .month-nav button {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    color: #f2f2f2;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .month-nav button:hover { background: #202020; }
+  .month-nav button:disabled { opacity: 0.3; cursor: default; }
+  .month-title { font-size: 18px; font-weight: 600; letter-spacing: 0.3px; }
+  .month-sub { font-size: 12px; color: #8a8a8a; margin-top: 2px; }
+
+  .balance-card {
+    background: linear-gradient(180deg, #141414, #0f0f0f);
+    border: 1px solid #262626;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .balance-label { font-size: 12px; color: #8a8a8a; text-transform: uppercase; letter-spacing: 1px; }
+  .balance-value { font-size: 32px; font-weight: 700; margin-top: 6px; }
+  .balance-value.neg { color: #e2574f; }
+  .balance-value.pos { color: #f2f2f2; }
+
+  .stat-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .stat {
+    flex: 1;
+    background: #121212;
+    border: 1px solid #232323;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .stat-label { font-size: 11px; color: #8a8a8a; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 18px; font-weight: 600; margin-top: 4px; }
+  .stat-value.credit { color: #4fd68c; }
+  .stat-value.debit { color: #e2574f; }
+  .stat-value.opening { color: #d9d9d9; }
+
+  .add-form {
+    background: #121212;
+    border: 1px solid #232323;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .type-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
+  .type-btn {
+    flex: 1;
+    padding: 9px 0;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+    background: #161616;
+    color: #8a8a8a;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+  .type-btn.active-credit { background: rgba(79,214,140,0.12); border-color: #4fd68c; color: #4fd68c; }
+  .type-btn.active-debit { background: rgba(226,87,79,0.12); border-color: #e2574f; color: #e2574f; }
+
+  .add-form input {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    color: #f2f2f2;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .add-form input::placeholder { color: #666; }
+  .add-form input:focus { outline: none; border-color: #444; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 11px 0;
+    border-radius: 8px;
+    border: none;
+    background: #f2f2f2;
+    color: #0a0a0a;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+  }
+  .submit-btn:hover { background: #dcdcdc; }
+
+  .entries-label { font-size: 12px; color: #8a8a8a; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 2px; }
+  .entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #121212;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .entry-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .entry-reason { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+  .entry-date { font-size: 11px; color: #777; }
+  .entry-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .entry-amount { font-size: 15px; font-weight: 600; }
+  .entry-amount.credit { color: #4fd68c; }
+  .entry-amount.debit { color: #e2574f; }
+  .del-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .del-btn:hover { color: #e2574f; }
+
+  .empty {
+    text-align: center;
+    color: #666;
+    font-size: 13px;
+    padding: 30px 0;
+  }
+
+  .status { font-size: 11px; color: #555; text-align: center; margin-top: 20px; }
+
+  .export-row { display: flex; gap: 8px; margin-top: 16px; }
+  .export-row button {
+    flex: 1;
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    color: #8a8a8a;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .export-row button:hover { color: #f2f2f2; border-color: #444; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#555;text-decoration:none;margin-bottom:14px;">&#8592; Hub</a>
+
+  <div class="brand">
+    <div class="brand-name">Cache</div>
+    <div class="brand-tag">monthly ledger</div>
+  </div>
+
+  <div class="month-nav">
+    <button id="prevBtn">&#8592;</button>
+    <div style="text-align:center;">
+      <div class="month-title" id="monthTitle">—</div>
+      <div class="month-sub" id="monthSub"></div>
+    </div>
+    <button id="nextBtn">&#8594;</button>
+  </div>
+
+  <div class="balance-card">
+    <div class="balance-label">Closing balance</div>
+    <div class="balance-value" id="closingBalance">₹0</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-label">Opening</div>
+      <div class="stat-value opening" id="openingStat">₹0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">In</div>
+      <div class="stat-value credit" id="creditStat">₹0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Out</div>
+      <div class="stat-value debit" id="debitStat">₹0</div>
+    </div>
+  </div>
+
+  <div class="add-form">
+    <div class="type-toggle">
+      <button class="type-btn active-credit" id="creditBtn" type="button">+ Credit</button>
+      <button class="type-btn" id="debitBtn" type="button">− Debit</button>
+    </div>
+    <input type="number" id="amountInput" placeholder="Amount" inputmode="decimal">
+    <input type="text" id="reasonInput" placeholder="Reason (e.g. salary, groceries)">
+    <input type="date" id="dateInput">
+    <button class="submit-btn" id="addBtn">Add entry</button>
+  </div>
+
+  <div class="entries-label">Entries this month</div>
+  <div id="entriesList"></div>
+
+  <div class="export-row">
+    <button id="exportBtn">Export backup</button>
+    <button id="importBtn">Import backup</button>
+  </div>
+  <input type="file" id="importFile" accept="application/json" style="display:none;">
+
+  <div class="status" id="statusMsg"></div>
+</div>
+
+<script>
+let allEntries = [];
+let currentType = 'credit';
+let viewYear, viewMonth; // viewMonth 0-indexed
+
+const STORAGE_KEY = 'cache_entries';
+
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function fmtMoney(n) {
+  const sign = n < 0 ? '−' : '';
+  return sign + '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+}
+
+function monthKey(y, m) {
+  return y + '-' + String(m+1).padStart(2,'0');
+}
+
+function loadEntries() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    allEntries = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    allEntries = [];
+  }
+}
+
+function saveEntries() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allEntries));
+    setStatus('Saved');
+  } catch (e) {
+    setStatus('Save failed — storage unavailable');
+  }
+}
+
+function setStatus(msg) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 1500);
+}
+
+function entriesForMonth(y, m) {
+  const key = monthKey(y, m);
+  return allEntries.filter(e => e.date.slice(0,7) === key);
+}
+
+function openingBalanceFor(y, m) {
+  const cutoff = monthKey(y, m);
+  let sum = 0;
+  for (const e of allEntries) {
+    if (e.date.slice(0,7) < cutoff) {
+      sum += e.type === 'credit' ? e.amount : -e.amount;
+    }
+  }
+  return sum;
+}
+
+function render() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('monthTitle').textContent = monthNames[viewMonth] + ' ' + viewYear;
+
+  const monthEntries = entriesForMonth(viewYear, viewMonth).sort((a,b) => a.date.localeCompare(b.date));
+  const opening = openingBalanceFor(viewYear, viewMonth);
+  let credit = 0, debit = 0;
+  for (const e of monthEntries) {
+    if (e.type === 'credit') credit += e.amount; else debit += e.amount;
+  }
+  const closing = opening + credit - debit;
+
+  document.getElementById('monthSub').textContent = monthEntries.length + (monthEntries.length === 1 ? ' entry' : ' entries');
+  document.getElementById('openingStat').textContent = fmtMoney(opening);
+  document.getElementById('creditStat').textContent = fmtMoney(credit);
+  document.getElementById('debitStat').textContent = fmtMoney(debit);
+
+  const closingEl = document.getElementById('closingBalance');
+  closingEl.textContent = fmtMoney(closing);
+  closingEl.className = 'balance-value ' + (closing < 0 ? 'neg' : 'pos');
+
+  const now = new Date();
+  const isCurrentOrFuture = (viewYear > now.getFullYear()) ||
+    (viewYear === now.getFullYear() && viewMonth >= now.getMonth());
+  document.getElementById('nextBtn').disabled = isCurrentOrFuture;
+
+  const list = document.getElementById('entriesList');
+  list.innerHTML = '';
+  if (monthEntries.length === 0) {
+    list.innerHTML = '<div class="empty">No entries yet this month.</div>';
+    return;
+  }
+  for (const e of [...monthEntries].reverse()) {
+    const row = document.createElement('div');
+    row.className = 'entry';
+    const d = new Date(e.date + 'T00:00:00');
+    const dateLabel = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    row.innerHTML = `
+      <div class="entry-left">
+        <div class="entry-reason">${escapeHtml(e.reason || (e.type === 'credit' ? 'Credit' : 'Debit'))}</div>
+        <div class="entry-date">${dateLabel}</div>
+      </div>
+      <div class="entry-right">
+        <div class="entry-amount ${e.type}">${e.type === 'credit' ? '+' : '−'}${fmtMoney(e.amount)}</div>
+        <button class="del-btn" data-id="${e.id}">✕</button>
+      </div>
+    `;
+    list.appendChild(row);
+  }
+  list.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      allEntries = allEntries.filter(e => e.id !== id);
+      saveEntries();
+      render();
+    });
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById('creditBtn').addEventListener('click', () => {
+  currentType = 'credit';
+  document.getElementById('creditBtn').classList.add('active-credit');
+  document.getElementById('debitBtn').classList.remove('active-debit');
+});
+document.getElementById('debitBtn').addEventListener('click', () => {
+  currentType = 'debit';
+  document.getElementById('debitBtn').classList.add('active-debit');
+  document.getElementById('creditBtn').classList.remove('active-credit');
+});
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const amountInput = document.getElementById('amountInput');
+  const reasonInput = document.getElementById('reasonInput');
+  const dateInput = document.getElementById('dateInput');
+
+  const amount = parseFloat(amountInput.value);
+  if (!amount || amount <= 0) { setStatus('Enter a valid amount'); return; }
+  const date = dateInput.value || todayStr();
+  const reason = reasonInput.value.trim();
+
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    amount, reason, type: currentType, date
+  };
+  allEntries.push(entry);
+  saveEntries();
+
+  amountInput.value = '';
+  reasonInput.value = '';
+
+  const [y, m] = date.split('-').map(Number);
+  viewYear = y; viewMonth = m - 1;
+
+  render();
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  viewMonth--;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  render();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  viewMonth++;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  render();
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(allEntries, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cache-backup-' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (Array.isArray(imported)) {
+        allEntries = imported;
+        saveEntries();
+        render();
+        setStatus('Backup imported');
+      } else {
+        setStatus('Invalid backup file');
+      }
+    } catch (e) {
+      setStatus('Could not read file');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+});
+
+(function init() {
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+  document.getElementById('dateInput').value = todayStr();
+  loadEntries();
+  render();
+})();
+</script>
+</body>
+</html>
