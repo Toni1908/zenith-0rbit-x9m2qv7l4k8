@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:      #080808;
+    --surface: #101010;
+    --border:  #1c1c1c;
+    --text:    #e0e0e0;
+    --muted:   #444;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+  .wrap { width: 100%; max-width: 460px; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #555;
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  .back-link:hover { color: var(--text); }
+
+  .header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .header-eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-name {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #fff;
+  }
+
+  .status-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px 16px;
+    margin-bottom: 22px;
+  }
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 0;
+  }
+  .status-row + .status-row { border-top: 1px solid var(--border); }
+  .status-name { font-size: 14px; font-weight: 600; }
+  .status-meta { font-size: 11px; color: #666; margin-top: 2px; }
+  .status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .badge-found { background: rgba(74,222,128,0.12); color: #4ade80; }
+  .badge-empty { background: #1a1a1a; color: #555; }
+
+  .action-group { margin-bottom: 18px; }
+  .action-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  button.main-btn {
+    width: 100%;
+    padding: 13px 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  button.main-btn:hover { border-color: #333; background: #141414; }
+  button.main-btn.primary {
+    background: #f2f2f2;
+    color: #0a0a0a;
+    border: none;
+  }
+  button.main-btn.primary:hover { background: #dcdcdc; }
+  button.main-btn.danger:hover { border-color: #e2574f; color: #e2574f; }
+
+  .note {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 6px;
+  }
+
+  .status-msg {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 16px;
+    min-height: 16px;
+  }
+  .status-msg.ok { color: #4ade80; }
+  .status-msg.err { color: #e2574f; }
+
+  /* ===== shared polish ===== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  body { animation: fadeInUp 0.35s ease; }
+  body {
+    padding-top: calc(env(safe-area-inset-top, 0px));
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
+  * { scrollbar-width: thin; scrollbar-color: #262626 transparent; }
+
+  button, a.card, .card {
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  }
+  button:active { transform: scale(0.96); }
+  a.card:active, .card:active { transform: scale(0.98); }
+
+  .toast-wrap {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    pointer-events: none;
+  }
+  .toast {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    color: #eee;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.err { border-color: #e2574f; color: #f2a09c; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="index.html">&#8592; Hub</a>
+
+  <div class="header">
+    <div class="header-eyebrow">Systems</div>
+    <div class="header-name">Backup</div>
+  </div>
+
+  <div class="status-list" id="statusList"></div>
+
+  <div class="action-group">
+    <div class="action-label">Export</div>
+    <button class="main-btn primary" id="exportBtn">Download full backup</button>
+    <div class="note">Saves Zenith, Cache, and Backlog data into one file. Keep it somewhere safe — a cloud drive or email to yourself works well.</div>
+  </div>
+
+  <div class="action-group">
+    <div class="action-label">Import</div>
+    <button class="main-btn" id="importBtn">Restore from backup file</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+    <div class="note">This overwrites current data in this browser for any app included in the backup file. Use this after clearing browser data, or when moving to a new device or browser.</div>
+  </div>
+
+  <div class="status-msg" id="statusMsg"></div>
+</div>
+
+<script>
+function showToast(msg, isError) {
+  let wrap = document.getElementById('toastWrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'toastWrap';
+    wrap.className = 'toast-wrap';
+    document.body.appendChild(wrap);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' err' : '');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 250);
+  }, 1700);
+}
+
+const APPS = [
+  { name: 'Zenith', keys: ['zenith_stats', 'zenith_special_quest'] },
+  { name: 'Cache', keys: ['cache_entries'] },
+  { name: 'Backlog', keys: ['backlog_progress'] }
+];
+
+function setMsg(text, kind) {
+  showToast(text, kind === 'err');
+}
+
+function renderStatus() {
+  const list = document.getElementById('statusList');
+  list.innerHTML = '';
+  APPS.forEach(app => {
+    const hasData = app.keys.some(k => localStorage.getItem(k) !== null);
+    const row = document.createElement('div');
+    row.className = 'status-row';
+    row.innerHTML = `
+      <div>
+        <div class="status-name">${app.name}</div>
+        <div class="status-meta">${hasData ? 'Data found in this browser' : 'No data yet'}</div>
+      </div>
+      <div class="status-badge ${hasData ? 'badge-found' : 'badge-empty'}">${hasData ? 'Ready' : 'Empty'}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const bundle = { exportedAt: new Date().toISOString(), apps: {} };
+  APPS.forEach(app => {
+    const data = {};
+    app.keys.forEach(k => {
+      const val = localStorage.getItem(k);
+      if (val !== null) data[k] = val;
+    });
+    bundle.apps[app.name] = data;
+  });
+
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = 'hub-backup-' + dateStr + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  setMsg('Backup downloaded', 'ok');
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const bundle = JSON.parse(reader.result);
+      if (!bundle.apps) { setMsg('Not a valid backup file', 'err'); return; }
+      let restoredCount = 0;
+      Object.keys(bundle.apps).forEach(appName => {
+        const data = bundle.apps[appName];
+        Object.keys(data).forEach(key => {
+          localStorage.setItem(key, data[key]);
+          restoredCount++;
+        });
+      });
+      renderStatus();
+      setMsg('Restored ' + restoredCount + ' item(s) across ' + Object.keys(bundle.apps).length + ' app(s)', 'ok');
+    } catch (e) {
+      setMsg('Could not read that file', 'err');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+});
+
+renderStatus();
+</script>
+</body>
+</html>
