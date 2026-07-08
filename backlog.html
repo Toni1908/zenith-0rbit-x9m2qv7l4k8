@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlog // Clear List</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0b0e;
+    --panel: #13151a;
+    --panel-hi: #191c22;
+    --line: #23262e;
+    --text: #f1f2f4;
+    --dim: #7b8190;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 16px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  .back-link:hover { color: var(--text); }
+
+  header { margin-bottom: 28px; }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 18px 0;
+    letter-spacing: 0.5px;
+  }
+
+  .progress-shell {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .progress-count { font-size: 22px; font-weight: 700; }
+  .progress-count span { color: var(--dim); font-size: 14px; font-weight: 500; }
+  .progress-pct { font-size: 13px; color: var(--dim); font-weight: 600; }
+
+  .bar-track {
+    height: 10px;
+    background: #1c1f26;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .bar-seg { height: 100%; transition: width 0.4s ease; }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 40px 0 18px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ---- top-level add-game forms ---- */
+  .add-toggle-btn {
+    display: block;
+    width: 100%;
+    background: var(--panel);
+    border: 1px dashed #333;
+    color: var(--dim);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 11px 0;
+    border-radius: 9px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: all 0.15s ease;
+  }
+  .add-toggle-btn:hover { border-color: #555; color: #aaa; }
+
+  .add-form {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .add-form input[type="text"],
+  .add-form select {
+    background: #0d0e12;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 9px 10px;
+    min-width: 0;
+  }
+  .add-form input[type="text"] { flex: 1 1 180px; }
+  .add-form select { flex: 1 1 140px; }
+  .add-form input:focus, .add-form select:focus { outline: none; border-color: #444; }
+  .add-form .form-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .form-actions button {
+    flex: 1;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 0;
+    border-radius: 7px;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary { background: #f1f2f4; color: #0a0b0e; }
+  .btn-primary:hover { background: #d8d9db; }
+  .btn-ghost { background: transparent; border: 1px solid var(--line) !important; color: var(--dim); }
+  .btn-ghost:hover { border-color: #444 !important; color: #ccc; }
+
+  /* ---- tier block ---- */
+  .tier { margin-bottom: 22px; }
+
+  .tier-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-left: 2px;
+    flex-wrap: wrap;
+  }
+
+  .tier-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .tier-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .tier-sub { font-size: 12px; color: var(--dim); font-weight: 500; }
+  .tier-count { font-size: 12px; color: var(--dim); font-weight: 600; }
+  .tier-spacer { flex: 1; }
+
+  .tier-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .icon-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 5px;
+    line-height: 1;
+  }
+  .icon-btn:hover { color: #ccc; background: var(--panel-hi); }
+  .icon-btn.danger:hover { color: #e2574f; }
+
+  .tier-edit-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .tier-edit-row input {
+    background: #0d0e12;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .tier-edit-row input:focus { outline: none; border-color: #444; }
+  .tier-edit-row .form-actions { display: flex; gap: 8px; width: 100%; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 3px;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border-radius: 6px;
+    user-select: none;
+    transition: background 0.15s ease;
+  }
+
+  .item:hover { background: var(--panel-hi); }
+  .item + .item { border-top: 1px solid var(--line); }
+
+  .box {
+    width: 19px;
+    height: 19px;
+    border-radius: 5px;
+    border: 2px solid var(--line);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .box svg { width: 12px; height: 12px; opacity: 0; transform: scale(0.6); transition: all 0.15s ease; }
+  .item.done .box svg { opacity: 1; transform: scale(1); }
+
+  .name {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text);
+    transition: color 0.15s ease, opacity 0.15s ease;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .item.done .name {
+    color: var(--dim);
+    opacity: 0.65;
+    text-decoration: line-through;
+    text-decoration-color: var(--dim);
+    text-decoration-thickness: 1.5px;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .buy-item-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+  .bought-btn {
+    background: rgba(79,214,122,0.1);
+    border: 1px solid rgba(79,214,122,0.4);
+    color: #4fd67a;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .bought-btn:hover { background: rgba(79,214,122,0.18); }
+
+  .item-edit-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .item-edit-row input[type="text"] {
+    flex: 1 1 140px;
+    background: #0d0e12;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .item-edit-row select {
+    flex: 1 1 120px;
+    background: #0d0e12;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .item-edit-row .form-actions { display: flex; gap: 8px; width: 100%; }
+
+  .move-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--panel-hi);
+  }
+  .move-picker select {
+    flex: 1 1 140px;
+    background: #0d0e12;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .move-picker .form-actions { display: flex; gap: 8px; width: 100%; }
+
+  .empty-tier {
+    text-align: center;
+    color: #555;
+    font-size: 12px;
+    padding: 18px 0;
+  }
+
+  footer { text-align: center; color: var(--dim); font-size: 12px; margin-top: 30px; }
+
+  .reset-btn {
+    display: block;
+    margin: 30px auto 0;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--dim);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .reset-btn:hover { border-color: #e2574f; color: #e2574f; }
+
+  /* ===== shared polish ===== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  body { animation: fadeInUp 0.35s ease; }
+  body {
+    padding-top: calc(env(safe-area-inset-top, 0px));
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
+  * { scrollbar-width: thin; scrollbar-color: #262626 transparent; }
+
+  button, a.card, .card {
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  }
+  button:active { transform: scale(0.96); }
+  a.card:active, .card:active { transform: scale(0.98); }
+
+  .toast-wrap {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    pointer-events: none;
+  }
+  .toast {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    color: #eee;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.err { border-color: #e2574f; color: #f2a09c; }
+
+  /* ---- mobile ---- */
+  @media (max-width: 480px) {
+    body { padding: 24px 12px 60px; }
+    h1 { font-size: 24px; }
+    .tier-count { margin-left: 0; }
+    .tier-spacer { display: none; }
+    .tier-head { justify-content: flex-start; }
+    .name { white-space: normal; }
+
+    .buy-row { flex-wrap: wrap; row-gap: 8px; }
+    .buy-row .name { flex: 1 1 100%; white-space: normal; }
+    .buy-item-actions { width: 100%; justify-content: flex-start; }
+    .bought-btn { flex: 1 1 auto; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="index.html">&#8592; Hub</a>
+
+  <header>
+    <div class="eyebrow">Backlog // Clear Order</div>
+    <h1>Play This, Then That</h1>
+    <div class="progress-shell">
+      <div class="progress-top">
+        <div class="progress-count" id="progressCount">0 <span id="progressTotal">/ 0 cleared</span></div>
+        <div class="progress-pct" id="progressPct">0%</div>
+      </div>
+      <div class="bar-track" id="barTrack"></div>
+    </div>
+  </header>
+
+  <div class="section-title">To Play</div>
+
+  <button class="add-toggle-btn" id="playAddToggle">+ Add game</button>
+  <div class="add-form" id="playAddForm" style="display:none;">
+    <input type="text" id="playAddName" placeholder="Game name">
+    <select id="playAddTier"></select>
+    <div class="form-actions">
+      <button class="btn-primary" id="playAddConfirm">Add</button>
+      <button class="btn-ghost" id="playAddCancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="tiers"></div>
+
+  <button class="add-toggle-btn" id="tierAddToggle">+ Add tier</button>
+  <div class="add-form" id="tierAddForm" style="display:none;">
+    <input type="text" id="tierAddTitle" placeholder="Tier title (e.g. Tier 8)">
+    <input type="text" id="tierAddSub" placeholder="Description (optional)">
+    <div class="form-actions">
+      <button class="btn-primary" id="tierAddConfirm">Create tier</button>
+      <button class="btn-ghost" id="tierAddCancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="section-title">To Buy</div>
+
+  <button class="add-toggle-btn" id="buyAddToggle">+ Add to buy list</button>
+  <div class="add-form" id="buyAddForm" style="display:none;">
+    <input type="text" id="buyAddName" placeholder="Game name">
+    <select id="buyAddTier"></select>
+    <div class="form-actions">
+      <button class="btn-primary" id="buyAddConfirm">Add</button>
+      <button class="btn-ghost" id="buyAddCancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="buyTiers"></div>
+
+  <button class="add-toggle-btn" id="buyTierAddToggle">+ Add buy window</button>
+  <div class="add-form" id="buyTierAddForm" style="display:none;">
+    <input type="text" id="buyTierAddTitle" placeholder="Window title (e.g. Diwali Sale)">
+    <input type="text" id="buyTierAddSub" placeholder="Description (optional)">
+    <div class="form-actions">
+      <button class="btn-primary" id="buyTierAddConfirm">Create window</button>
+      <button class="btn-ghost" id="buyTierAddCancel">Cancel</button>
+    </div>
+  </div>
+
+  <button class="reset-btn" id="resetBtn">Uncheck all progress</button>
+
+  <footer>Tap a title to mark it done. Use the icons to edit or delete. Everything saves automatically to this browser.</footer>
+</div>
+
+<script>
+function showToast(msg, isError) {
+  let wrap = document.getElementById('toastWrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'toastWrap';
+    wrap.className = 'toast-wrap';
+    document.body.appendChild(wrap);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' err' : '');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 250);
+  }, 1700);
+}
+
+/* ---------------- data ---------------- */
+
+const STORE_KEY = 'backlog_store';
+const LEGACY_STATE_KEY = 'backlog_progress';
+const STREAK_KEY = 'hub_streak_days';
+
+const PLAY_PALETTE = ['#4fd67a', '#5fb8e0', '#e0b84f', '#e08a4f', '#b073e0', '#e0524f', '#7b8190', '#4fe0d0', '#e04fbf', '#8fe04f'];
+const BUY_PALETTE  = ['#4fd6c4', '#e07a9c', '#7a9ce0', '#e0c44f', '#9c7ae0', '#4fa0e0', '#e0904f', '#7ae09c'];
+
+let store = { tiers: [], buyTiers: [] };
+
+function uid() {
+  return 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function slug(prefix, name) {
+  return prefix + '::' + name.replace(/\s+/g, '_');
+}
+
+function nextColor(palette, used) {
+  const free = palette.find(c => !used.includes(c));
+  return free || palette[used.length % palette.length];
+}
+
+function defaultSeed() {
+  const tiers = [
+    { id: 't1', title: 'Tier 1', sub: 'Quick wins — build the habit', color: '#4fd67a',
+      games: ['Portal 2', 'Still Wakes the Deep', 'Detroit: Become Human', 'Labyrinthine'] },
+    { id: 't2', title: 'Tier 2', sub: 'Story-driven, moderate difficulty', color: '#5fb8e0',
+      games: ['Resident Evil 2', 'Resident Evil 3', 'Resident Evil Village', 'Resident Evil 4', 'UNCHARTED: Legacy of Thieves Collection', 'Tomb Raider (2013)', 'Rise of the Tomb Raider', 'Shadow of the Tomb Raider'] },
+    { id: 't3', title: 'Tier 3', sub: 'Stepping up the difficulty', color: '#e0b84f',
+      games: ['The Evil Within', 'The Evil Within 2', 'RESIDENT EVIL RESISTANCE', 'Hollow Knight', 'Devil May Cry 5', 'God of War (2018)'] },
+    { id: 't4', title: 'Tier 4', sub: 'Big open-world commitments', color: '#e08a4f',
+      games: ['Days Gone', 'Ghost of Tsushima', 'Dying Light 2', 'Red Dead Redemption 2', 'Cyberpunk 2077'] },
+    { id: 't5', title: 'Tier 5', sub: 'RPG deep dives', color: '#b073e0',
+      games: ['The Witcher: Enhanced Edition', 'The Witcher 2', 'The Witcher 3: Wild Hunt'] },
+    { id: 't6', title: 'Tier 6', sub: 'Hardest — save for real free time', color: '#e0524f',
+      games: ['Lords of the Fallen', 'Sekiro: Shadows Die Twice', 'Hollow Knight: Silksong', 'ELDEN RING'] },
+    { id: 't7', title: 'Co-op', sub: 'Whenever a friend is free — no fixed slot', color: '#7b8190',
+      games: ['Split Fiction'] }
+  ].map(t => ({
+    id: t.id, title: t.title, sub: t.sub, color: t.color,
+    games: t.games.map(name => ({ id: slug('play_' + t.id, name), name, done: false }))
+  }));
+
+  const buyTiers = [
+    { id: 'b1', title: 'September 2026', sub: 'Planned buys', color: '#4fd6c4',
+      games: ["The Last of Us Part I", "Hellblade: Senua's Sacrifice", "Mirror's Edge"] },
+    { id: 'b2', title: 'Halloween / Black Friday', sub: 'Optional, if the sale is good', color: '#e07a9c',
+      games: ["No Man's Sky", 'Little Nightmares', 'Skyrim'] },
+    { id: 'b3', title: 'Winter Sale', sub: 'Planned buys', color: '#7a9ce0',
+      games: ["God of War Ragnarök", "Marvel's Spider-Man: Miles Morales"] },
+    { id: 'b4', title: 'March 2027 Sale', sub: 'Planned buys', color: '#e0c44f',
+      games: ["Marvel's Spider-Man 2", "Senua's Saga: Hellblade II"] },
+    { id: 'b5', title: 'Late Buys', sub: 'Expensive — wait for a deep discount', color: '#9c7ae0',
+      games: ['Resident Evil 9', 'Black Myth: Wukong', 'Sea of Thieves', 'Little Nightmares II', 'Little Nightmares III', 'A Plague Tale: Innocence', "Assassin's Creed IV: Black Flag"] }
+  ].map(t => ({
+    id: t.id, title: t.title, sub: t.sub, color: t.color,
+    games: t.games.map(name => ({ id: slug('buy_' + t.id, name), name }))
+  }));
+
+  return { tiers, buyTiers };
+}
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      store = JSON.parse(raw);
+      if (!store.tiers) store.tiers = [];
+      if (!store.buyTiers) store.buyTiers = [];
+      return;
+    }
+  } catch (e) { /* fall through to seed */ }
+
+  // first run — seed defaults, then migrate any legacy checked-state
+  store = defaultSeed();
+  try {
+    const legacyRaw = localStorage.getItem(LEGACY_STATE_KEY);
+    if (legacyRaw) {
+      const legacy = JSON.parse(legacyRaw);
+      store.tiers.forEach(tier => {
+        tier.games.forEach(g => {
+          if (legacy[g.id]) g.done = true;
+        });
+      });
+    }
+  } catch (e) { /* ignore migration errors */ }
+  saveStore();
+}
+
+function saveStore() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(store));
+  } catch (e) {
+    showToast('Could not save — storage unavailable', true);
+  }
+}
+
+function recordActivity() {
+  try {
+    const days = JSON.parse(localStorage.getItem(STREAK_KEY) || '[]');
+    const today = new Date().toISOString().slice(0,10);
+    if (days[days.length - 1] !== today) {
+      days.push(today);
+      localStorage.setItem(STREAK_KEY, JSON.stringify(days));
+    }
+  } catch (e) { /* non-critical */ }
+}
+
+function checkSvg() {
+  return '<svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0a0b0e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------------- ephemeral UI state ---------------- */
+let editingGameId = null;   // game currently in edit mode
+let movingGameId = null;    // buy-game currently showing the "bought → tier" picker
+let editingTierId = null;   // tier currently in edit mode (title/sub)
+
+/* ---------------- render: To Play ---------------- */
+
+function renderPlayTierOptions(selectEl, selectedId) {
+  selectEl.innerHTML = store.tiers.map(t =>
+    `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${escapeHtml(t.title)}</option>`
+  ).join('');
+}
+
+function renderTiers() {
+  const container = document.getElementById('tiers');
+  container.innerHTML = '';
+  let totalDone = 0, totalGames = 0;
+
+  store.tiers.forEach(tier => {
+    totalGames += tier.games.length;
+    const tierDone = tier.games.filter(g => g.done).length;
+    totalDone += tierDone;
+
+    const tierEl = document.createElement('div');
+    tierEl.className = 'tier';
+
+    if (editingTierId === tier.id) {
+      tierEl.innerHTML = `
+        <div class="tier-edit-row">
+          <input type="text" class="tier-edit-title" value="${escapeHtml(tier.title)}" placeholder="Tier title">
+          <input type="text" class="tier-edit-sub" value="${escapeHtml(tier.sub)}" placeholder="Description">
+          <div class="form-actions">
+            <button class="btn-primary tier-save-btn" data-id="${tier.id}">Save</button>
+            <button class="btn-ghost tier-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      `;
+    } else {
+      tierEl.innerHTML = `
+        <div class="tier-head">
+          <div class="tier-dot" style="background:${tier.color}"></div>
+          <div class="tier-title" style="color:${tier.color}">${escapeHtml(tier.title)}</div>
+          <div class="tier-sub">${escapeHtml(tier.sub || '')}</div>
+          <div class="tier-spacer"></div>
+          <div class="tier-count">${tierDone}/${tier.games.length}</div>
+          <div class="tier-actions">
+            <button class="icon-btn tier-edit-btn" data-id="${tier.id}" title="Edit tier">&#9998;</button>
+            <button class="icon-btn danger tier-delete-btn" data-id="${tier.id}" title="Delete tier">&#128465;</button>
+          </div>
+        </div>
+        <div class="card">
+          ${tier.games.length === 0 ? '<div class="empty-tier">No games in this tier yet.</div>' : tier.games.map(g => {
+            if (editingGameId === g.id) {
+              return `
+                <div class="item-edit-row">
+                  <input type="text" class="game-edit-name" value="${escapeHtml(g.name)}" data-id="${g.id}">
+                  <select class="game-edit-tier" data-id="${g.id}"></select>
+                  <div class="form-actions">
+                    <button class="btn-primary game-save-btn" data-id="${g.id}">Save</button>
+                    <button class="btn-ghost game-cancel-btn">Cancel</button>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="item ${g.done ? 'done' : ''}">
+                <div class="box game-toggle" data-id="${g.id}" style="${g.done ? `background:${tier.color};border-color:${tier.color}` : ''}">${checkSvg()}</div>
+                <div class="name game-toggle" data-id="${g.id}">${escapeHtml(g.name)}</div>
+                <div class="item-actions">
+                  <button class="icon-btn game-edit-btn" data-id="${g.id}" title="Edit">&#9998;</button>
+                  <button class="icon-btn danger game-delete-btn" data-id="${g.id}" title="Delete">&#128465;</button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+    container.appendChild(tierEl);
+  });
+
+  attachTierListeners();
+  attachGameListeners();
+
+  return { totalDone, totalGames };
+}
+
+function attachTierListeners() {
+  document.querySelectorAll('.tier-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingTierId = btn.getAttribute('data-id'); renderAll(); });
+  });
+  document.querySelectorAll('.tier-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingTierId = null; renderAll(); });
+  });
+  document.querySelectorAll('.tier-save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const row = btn.closest('.tier-edit-row');
+      const title = row.querySelector('.tier-edit-title').value.trim();
+      const sub = row.querySelector('.tier-edit-sub').value.trim();
+      const tier = store.tiers.find(t => t.id === id);
+      if (tier && title) { tier.title = title; tier.sub = sub; }
+      editingTierId = null;
+      saveStore();
+      renderAll();
+      showToast('Tier updated');
+    });
+  });
+  document.querySelectorAll('.tier-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const tier = store.tiers.find(t => t.id === id);
+      if (!tier) return;
+      const msg = tier.games.length
+        ? `Delete "${tier.title}"? This also removes its ${tier.games.length} game(s).`
+        : `Delete "${tier.title}"?`;
+      if (confirm(msg)) {
+        store.tiers = store.tiers.filter(t => t.id !== id);
+        saveStore();
+        renderAll();
+        showToast('Tier deleted');
+      }
+    });
+  });
+}
+
+function attachGameListeners() {
+  document.querySelectorAll('.game-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.getAttribute('data-id');
+      let game;
+      store.tiers.forEach(t => { const f = t.games.find(g => g.id === id); if (f) game = f; });
+      if (!game) return;
+      game.done = !game.done;
+      if (game.done) recordActivity();
+      saveStore();
+      renderAll();
+      showToast(game.done ? (game.name + ' cleared') : (game.name + ' unmarked'));
+    });
+  });
+
+  document.querySelectorAll('.game-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingGameId = btn.getAttribute('data-id'); renderAll(); });
+  });
+  document.querySelectorAll('.game-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingGameId = null; renderAll(); });
+  });
+  document.querySelectorAll('.game-edit-tier').forEach(sel => {
+    const id = sel.getAttribute('data-id');
+    let currentTierId = null;
+    store.tiers.forEach(t => { if (t.games.some(g => g.id === id)) currentTierId = t.id; });
+    renderPlayTierOptions(sel, currentTierId);
+  });
+  document.querySelectorAll('.game-save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const row = btn.closest('.item-edit-row');
+      const newName = row.querySelector('.game-edit-name').value.trim();
+      const newTierId = row.querySelector('.game-edit-tier').value;
+      if (!newName) { showToast('Name cannot be empty', true); return; }
+
+      let game, oldTier;
+      store.tiers.forEach(t => { const f = t.games.find(g => g.id === id); if (f) { game = f; oldTier = t; } });
+      if (!game) return;
+
+      game.name = newName;
+      if (newTierId && oldTier && newTierId !== oldTier.id) {
+        oldTier.games = oldTier.games.filter(g => g.id !== id);
+        const newTier = store.tiers.find(t => t.id === newTierId);
+        if (newTier) newTier.games.push(game);
+      }
+      editingGameId = null;
+      saveStore();
+      renderAll();
+      showToast('Game updated');
+    });
+  });
+  document.querySelectorAll('.game-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      let game;
+      store.tiers.forEach(t => { const f = t.games.find(g => g.id === id); if (f) game = f; });
+      if (!game) return;
+      if (confirm(`Delete "${game.name}" from your backlog?`)) {
+        store.tiers.forEach(t => { t.games = t.games.filter(g => g.id !== id); });
+        saveStore();
+        renderAll();
+        showToast('Game deleted');
+      }
+    });
+  });
+}
+
+/* ---------------- render: To Buy ---------------- */
+
+function renderBuyTierOptions(selectEl, selectedId) {
+  selectEl.innerHTML = store.buyTiers.map(t =>
+    `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${escapeHtml(t.title)}</option>`
+  ).join('');
+}
+
+function renderBuyTiers() {
+  const container = document.getElementById('buyTiers');
+  container.innerHTML = '';
+
+  store.buyTiers.forEach(tier => {
+    const tierEl = document.createElement('div');
+    tierEl.className = 'tier';
+
+    if (editingTierId === ('buy_' + tier.id)) {
+      tierEl.innerHTML = `
+        <div class="tier-edit-row">
+          <input type="text" class="buytier-edit-title" value="${escapeHtml(tier.title)}" placeholder="Window title">
+          <input type="text" class="buytier-edit-sub" value="${escapeHtml(tier.sub)}" placeholder="Description">
+          <div class="form-actions">
+            <button class="btn-primary buytier-save-btn" data-id="${tier.id}">Save</button>
+            <button class="btn-ghost buytier-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      `;
+    } else {
+      tierEl.innerHTML = `
+        <div class="tier-head">
+          <div class="tier-dot" style="background:${tier.color}"></div>
+          <div class="tier-title" style="color:${tier.color}">${escapeHtml(tier.title)}</div>
+          <div class="tier-sub">${escapeHtml(tier.sub || '')}</div>
+          <div class="tier-spacer"></div>
+          <div class="tier-count">${tier.games.length}</div>
+          <div class="tier-actions">
+            <button class="icon-btn buytier-edit-btn" data-id="${tier.id}" title="Edit window">&#9998;</button>
+            <button class="icon-btn danger buytier-delete-btn" data-id="${tier.id}" title="Delete window">&#128465;</button>
+          </div>
+        </div>
+        <div class="card">
+          ${tier.games.length === 0 ? '<div class="empty-tier">Nothing planned here yet.</div>' : tier.games.map(g => {
+            if (editingGameId === g.id) {
+              return `
+                <div class="item-edit-row">
+                  <input type="text" class="buygame-edit-name" value="${escapeHtml(g.name)}" data-id="${g.id}">
+                  <select class="buygame-edit-tier" data-id="${g.id}"></select>
+                  <div class="form-actions">
+                    <button class="btn-primary buygame-save-btn" data-id="${g.id}">Save</button>
+                    <button class="btn-ghost buygame-cancel-btn">Cancel</button>
+                  </div>
+                </div>
+              `;
+            }
+            if (movingGameId === g.id) {
+              return `
+                <div class="move-picker">
+                  <select class="move-target" data-id="${g.id}"></select>
+                  <div class="form-actions">
+                    <button class="btn-primary move-confirm-btn" data-id="${g.id}">Confirm bought</button>
+                    <button class="btn-ghost move-cancel-btn">Cancel</button>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="item buy-row">
+                <div class="name">${escapeHtml(g.name)}</div>
+                <div class="buy-item-actions">
+                  <button class="bought-btn buy-mark-bought" data-id="${g.id}">Bought &#8594;</button>
+                  <button class="icon-btn buygame-edit-btn" data-id="${g.id}" title="Edit">&#9998;</button>
+                  <button class="icon-btn danger buygame-delete-btn" data-id="${g.id}" title="Delete">&#128465;</button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+    container.appendChild(tierEl);
+  });
+
+  attachBuyTierListeners();
+  attachBuyGameListeners();
+}
+
+function attachBuyTierListeners() {
+  document.querySelectorAll('.buytier-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingTierId = 'buy_' + btn.getAttribute('data-id'); renderAll(); });
+  });
+  document.querySelectorAll('.buytier-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingTierId = null; renderAll(); });
+  });
+  document.querySelectorAll('.buytier-save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const row = btn.closest('.tier-edit-row');
+      const title = row.querySelector('.buytier-edit-title').value.trim();
+      const sub = row.querySelector('.buytier-edit-sub').value.trim();
+      const tier = store.buyTiers.find(t => t.id === id);
+      if (tier && title) { tier.title = title; tier.sub = sub; }
+      editingTierId = null;
+      saveStore();
+      renderAll();
+      showToast('Buy window updated');
+    });
+  });
+  document.querySelectorAll('.buytier-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const tier = store.buyTiers.find(t => t.id === id);
+      if (!tier) return;
+      const msg = tier.games.length
+        ? `Delete "${tier.title}"? This also removes its ${tier.games.length} planned game(s).`
+        : `Delete "${tier.title}"?`;
+      if (confirm(msg)) {
+        store.buyTiers = store.buyTiers.filter(t => t.id !== id);
+        saveStore();
+        renderAll();
+        showToast('Buy window deleted');
+      }
+    });
+  });
+}
+
+function attachBuyGameListeners() {
+  document.querySelectorAll('.buygame-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingGameId = btn.getAttribute('data-id'); movingGameId = null; renderAll(); });
+  });
+  document.querySelectorAll('.buygame-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editingGameId = null; renderAll(); });
+  });
+  document.querySelectorAll('.buygame-edit-tier').forEach(sel => {
+    const id = sel.getAttribute('data-id');
+    let currentTierId = null;
+    store.buyTiers.forEach(t => { if (t.games.some(g => g.id === id)) currentTierId = t.id; });
+    renderBuyTierOptions(sel, currentTierId);
+  });
+  document.querySelectorAll('.buygame-save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const row = btn.closest('.item-edit-row');
+      const newName = row.querySelector('.buygame-edit-name').value.trim();
+      const newTierId = row.querySelector('.buygame-edit-tier').value;
+      if (!newName) { showToast('Name cannot be empty', true); return; }
+
+      let game, oldTier;
+      store.buyTiers.forEach(t => { const f = t.games.find(g => g.id === id); if (f) { game = f; oldTier = t; } });
+      if (!game) return;
+
+      game.name = newName;
+      if (newTierId && oldTier && newTierId !== oldTier.id) {
+        oldTier.games = oldTier.games.filter(g => g.id !== id);
+        const newTier = store.buyTiers.find(t => t.id === newTierId);
+        if (newTier) newTier.games.push(game);
+      }
+      editingGameId = null;
+      saveStore();
+      renderAll();
+      showToast('Entry updated');
+    });
+  });
+  document.querySelectorAll('.buygame-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      let game;
+      store.buyTiers.forEach(t => { const f = t.games.find(g => g.id === id); if (f) game = f; });
+      if (!game) return;
+      if (confirm(`Remove "${game.name}" from your buy list?`)) {
+        store.buyTiers.forEach(t => { t.games = t.games.filter(g => g.id !== id); });
+        saveStore();
+        renderAll();
+        showToast('Entry removed');
+      }
+    });
+  });
+
+  document.querySelectorAll('.buy-mark-bought').forEach(btn => {
+    btn.addEventListener('click', () => {
+      movingGameId = btn.getAttribute('data-id');
+      editingGameId = null;
+      renderAll();
+    });
+  });
+  document.querySelectorAll('.move-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => { movingGameId = null; renderAll(); });
+  });
+  document.querySelectorAll('.move-target').forEach(sel => {
+    // default to the first (lowest) tier if it exists
+    if (store.tiers.length) sel.innerHTML = store.tiers.map((t,i) =>
+      `<option value="${t.id}" ${i===0?'selected':''}>${escapeHtml(t.title)}</option>`
+    ).join('');
+    else sel.innerHTML = '<option value="">No tiers yet — will create "Unsorted"</option>';
+  });
+  document.querySelectorAll('.move-confirm-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const row = btn.closest('.move-picker');
+      const targetTierId = row.querySelector('.move-target').value;
+
+      let game, oldBuyTier;
+      store.buyTiers.forEach(t => { const f = t.games.find(g => g.id === id); if (f) { game = f; oldBuyTier = t; } });
+      if (!game) return;
+
+      let targetTier = store.tiers.find(t => t.id === targetTierId);
+      if (!targetTier) {
+        targetTier = { id: 'unsorted', title: 'Unsorted', sub: 'Newly bought — assign a tier when ready', color: '#7b8190', games: [] };
+        store.tiers.push(targetTier);
+      }
+
+      targetTier.games.push({ id: uid(), name: game.name, done: false });
+      oldBuyTier.games = oldBuyTier.games.filter(g => g.id !== id);
+
+      movingGameId = null;
+      recordActivity();
+      saveStore();
+      renderAll();
+      showToast(game.name + ' moved to ' + targetTier.title);
+    });
+  });
+}
+
+/* ---------------- progress + master render ---------------- */
+
+function renderProgress(totalDone, totalGames) {
+  document.getElementById('progressCount').innerHTML = `${totalDone} <span id="progressTotal">/ ${totalGames} cleared</span>`;
+  const pct = totalGames ? Math.round((totalDone / totalGames) * 100) : 0;
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  const barTrack = document.getElementById('barTrack');
+  barTrack.innerHTML = '';
+  store.tiers.forEach(tier => {
+    const tierDone = tier.games.filter(g => g.done).length;
+    const segWidth = totalGames ? (tierDone / totalGames) * 100 : 0;
+    if (segWidth > 0) {
+      const seg = document.createElement('div');
+      seg.className = 'bar-seg';
+      seg.style.width = segWidth + '%';
+      seg.style.background = tier.color;
+      barTrack.appendChild(seg);
+    }
+  });
+}
+
+function renderAll() {
+  const { totalDone, totalGames } = renderTiers();
+  renderBuyTiers();
+  renderProgress(totalDone, totalGames);
+}
+
+/* ---------------- top-level add-game / add-tier forms ---------------- */
+
+function wireToggle(toggleId, formId) {
+  document.getElementById(toggleId).addEventListener('click', () => {
+    const form = document.getElementById(formId);
+    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+  });
+}
+
+wireToggle('playAddToggle', 'playAddForm');
+wireToggle('tierAddToggle', 'tierAddForm');
+wireToggle('buyAddToggle', 'buyAddForm');
+wireToggle('buyTierAddToggle', 'buyTierAddForm');
+
+document.getElementById('playAddCancel').addEventListener('click', () => {
+  document.getElementById('playAddForm').style.display = 'none';
+  document.getElementById('playAddName').value = '';
+});
+document.getElementById('playAddConfirm').addEventListener('click', () => {
+  const nameInput = document.getElementById('playAddName');
+  const tierSelect = document.getElementById('playAddTier');
+  const name = nameInput.value.trim();
+  if (!name) { showToast('Enter a game name', true); return; }
+  let tier = store.tiers.find(t => t.id === tierSelect.value);
+  if (!tier && store.tiers.length) tier = store.tiers[0];
+  if (!tier) {
+    tier = { id: 'unsorted', title: 'Unsorted', sub: '', color: '#7b8190', games: [] };
+    store.tiers.push(tier);
+  }
+  tier.games.push({ id: uid(), name, done: false });
+  nameInput.value = '';
+  document.getElementById('playAddForm').style.display = 'none';
+  saveStore();
+  renderAll();
+  showToast(name + ' added to ' + tier.title);
+});
+
+document.getElementById('tierAddCancel').addEventListener('click', () => {
+  document.getElementById('tierAddForm').style.display = 'none';
+});
+document.getElementById('tierAddConfirm').addEventListener('click', () => {
+  const titleInput = document.getElementById('tierAddTitle');
+  const subInput = document.getElementById('tierAddSub');
+  const title = titleInput.value.trim();
+  if (!title) { showToast('Enter a tier title', true); return; }
+  const used = store.tiers.map(t => t.color);
+  const color = nextColor(PLAY_PALETTE, used);
+  store.tiers.push({ id: 't_' + Date.now().toString(36), title, sub: subInput.value.trim(), color, games: [] });
+  titleInput.value = ''; subInput.value = '';
+  document.getElementById('tierAddForm').style.display = 'none';
+  saveStore();
+  renderAll();
+  showToast('Tier created');
+});
+
+document.getElementById('buyAddCancel').addEventListener('click', () => {
+  document.getElementById('buyAddForm').style.display = 'none';
+  document.getElementById('buyAddName').value = '';
+});
+document.getElementById('buyAddConfirm').addEventListener('click', () => {
+  const nameInput = document.getElementById('buyAddName');
+  const tierSelect = document.getElementById('buyAddTier');
+  const name = nameInput.value.trim();
+  if (!name) { showToast('Enter a game name', true); return; }
+  let tier = store.buyTiers.find(t => t.id === tierSelect.value);
+  if (!tier && store.buyTiers.length) tier = store.buyTiers[0];
+  if (!tier) {
+    tier = { id: 'bt_' + Date.now().toString(36), title: 'Planned buys', sub: '', color: BUY_PALETTE[0], games: [] };
+    store.buyTiers.push(tier);
+  }
+  tier.games.push({ id: uid(), name });
+  nameInput.value = '';
+  document.getElementById('buyAddForm').style.display = 'none';
+  saveStore();
+  renderAll();
+  showToast(name + ' added to ' + tier.title);
+});
+
+document.getElementById('buyTierAddCancel').addEventListener('click', () => {
+  document.getElementById('buyTierAddForm').style.display = 'none';
+});
+document.getElementById('buyTierAddConfirm').addEventListener('click', () => {
+  const titleInput = document.getElementById('buyTierAddTitle');
+  const subInput = document.getElementById('buyTierAddSub');
+  const title = titleInput.value.trim();
+  if (!title) { showToast('Enter a window title', true); return; }
+  const used = store.buyTiers.map(t => t.color);
+  const color = nextColor(BUY_PALETTE, used);
+  store.buyTiers.push({ id: 'bt_' + Date.now().toString(36), title, sub: subInput.value.trim(), color, games: [] });
+  titleInput.value = ''; subInput.value = '';
+  document.getElementById('buyTierAddForm').style.display = 'none';
+  saveStore();
+  renderAll();
+  showToast('Buy window created');
+});
+
+/* keep the top-level tier <select> dropdowns in sync every render */
+const _origRenderAll = renderAll;
+renderAll = function() {
+  _origRenderAll();
+  renderPlayTierOptions(document.getElementById('playAddTier'), store.tiers[0] && store.tiers[0].id);
+  renderBuyTierOptions(document.getElementById('buyAddTier'), store.buyTiers[0] && store.buyTiers[0].id);
+};
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm('Uncheck every completed game in your To Play backlog? Your lists and tiers stay intact.')) {
+    store.tiers.forEach(t => t.games.forEach(g => g.done = false));
+    saveStore();
+    renderAll();
+    showToast('Progress unchecked');
+  }
+});
+
+(function init() {
+  loadStore();
+  renderAll();
+})();
+</script>
+</body>
+</html>
