@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anchors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0a0c;
+    --panel: #131316;
+    --panel-2: #1a1a1e;
+    --border: #232328;
+    --text: #eaeaec;
+    --text-dim: #8b8b93;
+    --text-faint: #56565e;
+
+    --c-creator: #a78bfa;
+    --c-story: #60a5fa;
+    --c-physical: #fb923c;
+    --c-exploration: #2dd4bf;
+    --c-skill: #4ade80;
+    --c-body: #f87171;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    min-height: 100vh;
+    padding: 32px 20px 80px;
+  }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .back-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  .back-link:hover{ color: var(--text); }
+
+  /* ---------- Header ---------- */
+
+  header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .title{
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .subtitle{
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 300;
+    margin-top: 4px;
+  }
+
+  .streak{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 18px;
+  }
+
+  .streak-num{
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .streak-label{
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  .streak-dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px #4ade8090;
+  }
+
+  .streak.zero .streak-dot{
+    background: var(--text-faint);
+    box-shadow: none;
+  }
+
+  /* ---------- Grid ---------- */
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 18px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.12s ease;
+  }
+
+  .card::before{
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0.85;
+  }
+
+  .card-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-name{
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .card-desc{
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 300;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  .done-toggle{
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 14px;
+    transition: all 0.15s ease;
+  }
+
+  .done-toggle:hover{ border-color: var(--accent); }
+  .done-toggle:active{ transform: scale(0.92); }
+
+  .done-toggle.on{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0a0c;
+  }
+
+  .pick-area{
+    margin-top: 14px;
+    min-height: 40px;
+    background: var(--panel-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+  }
+
+  .pick-area.placeholder{
+    color: var(--text-faint);
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .card-actions{
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .btn{
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 10px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 38px;
+  }
+
+  .btn:hover{
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .btn:active{ transform: scale(0.96); }
+
+  .btn-add{
+    flex: 0 0 auto;
+    width: 38px;
+  }
+
+  /* ---------- History ---------- */
+
+  .section-label{
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .history{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .history-grid{
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    gap: 5px;
+  }
+
+  .day{
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+  }
+
+  .day-label{
+    font-size: 10px;
+    color: var(--text-faint);
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .note{
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 12px;
+    font-weight: 300;
+    margin-top: 30px;
+    line-height: 1.6;
+  }
+
+  /* ---------- Add-idea inline form ---------- */
+
+  .add-form{
+    display: none;
+    margin-top: 10px;
+    gap: 6px;
+  }
+
+  .add-form.open{ display: flex; }
+
+  .add-form input{
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    padding: 10px 10px;
+  }
+
+  .add-form input:focus{
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  /* ---------- shared polish ---------- */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  body { animation: fadeInUp 0.35s ease; }
+  body {
+    padding-top: calc(32px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
+  * { scrollbar-width: thin; scrollbar-color: #262626 transparent; }
+
+  .toast-wrap {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    pointer-events: none;
+  }
+  .toast {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    color: #eee;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ---------- mobile ---------- */
+  @media (max-width: 480px){
+    body{ padding-left: 14px; padding-right: 14px; }
+    .title{ font-size: 22px; }
+    .subtitle{ font-size: 12px; }
+    header{ gap: 10px; }
+    .streak{ padding: 8px 14px; }
+    .streak-num{ font-size: 18px; }
+    .grid{ grid-template-columns: 1fr; gap: 10px; }
+    .card{ padding: 16px 14px 14px; }
+    .card-actions{ flex-wrap: wrap; }
+    .btn{ flex: 1 1 100%; }
+    .btn-add{ flex: 1 1 100%; width: auto; }
+    .history{ padding: 14px; }
+    .history-grid{ grid-template-columns: repeat(10, 1fr); gap: 4px; }
+    .day-label{ font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <a class="back-link" href="index.html">&#8592; Hub</a>
+
+  <header>
+    <div>
+      <div class="title">Anchors</div>
+      <div class="subtitle">Pick what you're pulled toward. No pressure, nothing owed.</div>
+    </div>
+    <div class="streak" id="streakBox">
+      <div class="streak-dot" id="streakDot"></div>
+      <div>
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-label">day streak</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid" id="cardGrid"></div>
+
+  <div class="section-label">Last two weeks</div>
+  <div class="history">
+    <div class="history-grid" id="historyGrid"></div>
+    <div class="day-label"><span>14 days ago</span><span>today</span></div>
+  </div>
+
+  <div class="note">Some days will have nothing logged. That's fine — the streak is just a nudge, not a judgment.</div>
+
+</div>
+
+<script>
+(function(){
+
+  const CATEGORIES = [
+    {
+      id: 'creator', name: 'Creator', color: 'var(--c-creator)',
+      desc: 'Making something — no scope, no deadline.',
+      items: [
+        'Sketch a game idea or mechanic',
+        'Worldbuild a setting, character, or piece of lore',
+        'Write a scene or a stray thought',
+        'Tinker with code (Godot, UE5, Java, Zenith/Cache)',
+        'Build a tiny prototype, just to see if it works'
+      ]
+    },
+    {
+      id: 'story', name: 'Story & Experience', color: 'var(--c-story)',
+      desc: 'Living inside worlds someone else built.',
+      items: [
+        'A story-driven or horror game session',
+        'Watch some anime',
+        'Watch a movie',
+        'Read a book or a few pages',
+        'Pick apart a character or story structure'
+      ]
+    },
+    {
+      id: 'physical', name: 'Physical Creation', color: 'var(--c-physical)',
+      desc: 'Making something real with your hands.',
+      items: [
+        'Cook something, or try a new recipe',
+        'Sketch a digital idea on paper',
+        'Make a small physical version of something in your head'
+      ]
+    },
+    {
+      id: 'exploration', name: 'Exploration', color: 'var(--c-exploration)',
+      desc: 'Following curiosity, no goal required.',
+      items: [
+        'Fall into a random topic rabbit hole',
+        'Watch a design breakdown video',
+        'Chew on a "wait, how does that work" question'
+      ]
+    },
+    {
+      id: 'skill', name: 'Skill Growth', color: 'var(--c-skill)',
+      desc: 'Small, structured, low-friction.',
+      items: [
+        'Japanese practice',
+        'Programming, only if it still feels like curiosity',
+        'A little embedded systems reading',
+      ]
+    },
+    {
+      id: 'body', name: 'Body', color: 'var(--c-body)',
+      desc: 'Maintenance, not performance.',
+      items: [
+        'Push-ups or calisthenics',
+        'A walk',
+        'Stretch it out'
+      ]
+    }
+  ];
+
+  const LS_LOG = 'anchors_log_v1';
+  const LS_CUSTOM = 'anchors_custom_v1';
+  const STREAK_KEY = 'hub_streak_days';
+
+  const todayKey = () => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  };
+
+  const keyForOffset = (offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() - offset);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  };
+
+  let log = {};
+  let custom = {};
+  try { log = JSON.parse(localStorage.getItem(LS_LOG)) || {}; } catch(e) { log = {}; }
+  try { custom = JSON.parse(localStorage.getItem(LS_CUSTOM)) || {}; } catch(e) { custom = {}; }
+
+  function saveLog(){ localStorage.setItem(LS_LOG, JSON.stringify(log)); }
+  function saveCustom(){ localStorage.setItem(LS_CUSTOM, JSON.stringify(custom)); }
+
+  function recordHubActivity(){
+    try {
+      const days = JSON.parse(localStorage.getItem(STREAK_KEY) || '[]');
+      const today = todayKey();
+      if (days[days.length - 1] !== today) {
+        days.push(today);
+        localStorage.setItem(STREAK_KEY, JSON.stringify(days));
+      }
+    } catch(e) { /* non-critical */ }
+  }
+
+  function showToast(msg){
+    let wrap = document.getElementById('toastWrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'toastWrap';
+      wrap.className = 'toast-wrap';
+      document.body.appendChild(wrap);
+    }
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    wrap.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 250);
+    }, 1600);
+  }
+
+  function itemsFor(cat){
+    return cat.items.concat(custom[cat.id] || []);
+  }
+
+  function isDoneToday(catId){
+    const t = log[todayKey()];
+    return !!(t && t.includes(catId));
+  }
+
+  function toggleDone(catId){
+    const t = todayKey();
+    if(!log[t]) log[t] = [];
+    const idx = log[t].indexOf(catId);
+    const wasEmpty = log[t].length === 0;
+    if(idx === -1){
+      log[t].push(catId);
+      recordHubActivity();
+    } else {
+      log[t].splice(idx, 1);
+    }
+    saveLog();
+    render();
+  }
+
+  function computeStreak(){
+    let streak = 0;
+    let offset = 0;
+    // today counts if something is logged; if today is empty, streak is based on yesterday backward
+    while(true){
+      const k = keyForOffset(offset);
+      const entries = log[k];
+      if(entries && entries.length > 0){
+        streak++;
+        offset++;
+      } else {
+        if(offset === 0){ offset++; continue; } // today not done yet doesn't break streak
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function pickRandom(cat){
+    const list = itemsFor(cat);
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function render(){
+    // header streak
+    const streak = computeStreak();
+    document.getElementById('streakNum').textContent = streak;
+    document.getElementById('streakBox').classList.toggle('zero', streak === 0);
+
+    // cards
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const done = isDoneToday(cat.id);
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.setProperty('--accent', cat.color);
+      card.innerHTML = `
+        <div class="card-head">
+          <div>
+            <div class="card-name">${cat.name}</div>
+            <div class="card-desc">${cat.desc}</div>
+          </div>
+          <button class="done-toggle ${done ? 'on' : ''}" title="Mark done today">${done ? '✓' : ''}</button>
+        </div>
+        <div class="pick-area placeholder" data-role="pick">Tap shuffle for an idea</div>
+        <div class="card-actions">
+          <button class="btn" data-role="shuffle">Shuffle idea</button>
+          <button class="btn btn-add" data-role="addBtn" title="Add your own idea">+</button>
+        </div>
+        <div class="add-form" data-role="addForm">
+          <input type="text" placeholder="Add your own idea..." data-role="addInput">
+        </div>
+      `;
+
+      card.querySelector('[data-role="shuffle"]').addEventListener('click', () => {
+        const pickEl = card.querySelector('[data-role="pick"]');
+        pickEl.textContent = pickRandom(cat);
+        pickEl.classList.remove('placeholder');
+      });
+
+      card.querySelector('.done-toggle').addEventListener('click', () => {
+        const wasOn = done;
+        toggleDone(cat.id);
+        if (!wasOn) showToast(cat.name + ' marked done today');
+      });
+
+      card.querySelector('[data-role="addBtn"]').addEventListener('click', () => {
+        card.querySelector('[data-role="addForm"]').classList.toggle('open');
+        card.querySelector('[data-role="addInput"]').focus();
+      });
+
+      card.querySelector('[data-role="addInput"]').addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+          const val = e.target.value.trim();
+          if(val){
+            if(!custom[cat.id]) custom[cat.id] = [];
+            custom[cat.id].push(val);
+            saveCustom();
+            e.target.value = '';
+            card.querySelector('[data-role="addForm"]').classList.remove('open');
+            showToast('Idea added to ' + cat.name);
+          }
+        }
+      });
+
+      grid.appendChild(card);
+    });
+
+    // history grid — last 14 days, oldest first
+    const hgrid = document.getElementById('historyGrid');
+    hgrid.innerHTML = '';
+    for(let i = 13; i >= 0; i--){
+      const k = keyForOffset(i);
+      const entries = log[k] || [];
+      const dayEl = document.createElement('div');
+      dayEl.className = 'day';
+      if(entries.length > 0){
+        const opacity = Math.min(0.35 + entries.length * 0.18, 1);
+        dayEl.style.background = `rgba(74, 222, 128, ${opacity})`;
+        dayEl.style.borderColor = 'transparent';
+      }
+      dayEl.title = k + (entries.length ? ` — ${entries.length} anchor${entries.length > 1 ? 's' : ''}` : ' — nothing logged');
+      hgrid.appendChild(dayEl);
+    }
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
