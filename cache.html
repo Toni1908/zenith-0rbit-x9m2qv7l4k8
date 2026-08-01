@@ -679,9 +679,12 @@ function renderTrend(y, m) {
     const color = CATEGORY_COLORS[cat] || '#8a8a8a';
     const pts = months.map((mo, i) => `${xs[i]},${yFor(monthTotals[i][cat] || 0).toFixed(1)}`);
     svgLines += `<polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.9" />`;
-    pts.forEach(p => {
+    pts.forEach((p, i) => {
       const [px, py] = p.split(',');
-      svgDots += `<circle cx="${px}" cy="${py}" r="3" fill="${color}" />`;
+      const val = monthTotals[i][cat] || 0;
+      const label = `${cat} \u2014 ${monthNamesShort[months[i].month]}: ${fmtMoney(val)}`;
+      svgDots += `<circle cx="${px}" cy="${py}" r="7" fill="transparent" class="trend-dot-hit" data-label="${escapeHtml(label)}" style="cursor:pointer;" />`;
+      svgDots += `<circle cx="${px}" cy="${py}" r="3" fill="${color}" style="pointer-events:none;" />`;
     });
   });
 
@@ -704,6 +707,12 @@ function renderTrend(y, m) {
     </svg>
     <div class="trend-legend">${legend}</div>
   `;
+
+  card.querySelectorAll('.trend-dot-hit').forEach(dot => {
+    dot.addEventListener('click', () => {
+      showToast(dot.getAttribute('data-label'));
+    });
+  });
 }
 
 function render() {
