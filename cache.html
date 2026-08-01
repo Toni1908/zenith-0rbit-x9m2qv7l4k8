@@ -209,6 +209,29 @@
   .add-form input::placeholder { color: #666; }
   .add-form input:focus, .add-form select:focus { outline: none; border-color: #444; }
 
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: -4px 0 10px;
+  }
+  .chip {
+    background: #161616;
+    border: 1px solid #262626;
+    color: #999;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chip:hover { border-color: #444; color: #f2f2f2; }
+  .chip.active { background: rgba(242,242,242,0.08); border-color: #555; color: #f2f2f2; }
+
   .submit-btn {
     width: 100%;
     padding: 11px 0;
@@ -394,6 +417,7 @@
       <option value="Other expenses">Other expenses</option>
     </select>
     <input type="text" id="reasonInput" placeholder="Reason (e.g. groceries, petrol)">
+    <div class="chip-row" id="reasonChips"></div>
     <input type="date" id="dateInput">
     <button class="submit-btn" id="addBtn">Add entry</button>
   </div>
@@ -715,6 +739,40 @@ function renderTrend(y, m) {
   });
 }
 
+function renderReasonChips() {
+  const wrap = document.getElementById('reasonChips');
+  const counts = {};
+  allEntries.forEach(e => {
+    if (e.type !== currentType) return;
+    const r = (e.reason || '').trim();
+    if (!r) return;
+    counts[r] = (counts[r] || 0) + 1;
+  });
+  const top = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([reason]) => reason);
+
+  if (top.length === 0) {
+    wrap.innerHTML = '';
+    return;
+  }
+
+  const reasonInput = document.getElementById('reasonInput');
+  wrap.innerHTML = top.map(r =>
+    `<button type="button" class="chip" data-reason="${escapeHtml(r)}">${escapeHtml(r)}</button>`
+  ).join('');
+
+  wrap.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      reasonInput.value = chip.getAttribute('data-reason');
+      wrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      reasonInput.focus();
+    });
+  });
+}
+
 function render() {
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('monthTitle').textContent = monthNames[viewMonth] + ' ' + viewYear;
@@ -778,6 +836,7 @@ function render() {
       allEntries = allEntries.filter(e => e.id !== id);
       saveEntries();
       render();
+      renderReasonChips();
     });
   });
 }
@@ -792,11 +851,13 @@ document.getElementById('creditBtn').addEventListener('click', () => {
   currentType = 'credit';
   document.getElementById('creditBtn').classList.add('active-credit');
   document.getElementById('debitBtn').classList.remove('active-debit');
+  renderReasonChips();
 });
 document.getElementById('debitBtn').addEventListener('click', () => {
   currentType = 'debit';
   document.getElementById('debitBtn').classList.add('active-debit');
   document.getElementById('creditBtn').classList.remove('active-credit');
+  renderReasonChips();
 });
 
 document.getElementById('addBtn').addEventListener('click', () => {
@@ -825,6 +886,7 @@ document.getElementById('addBtn').addEventListener('click', () => {
   viewYear = y; viewMonth = m - 1;
 
   render();
+  renderReasonChips();
   showToast((currentType === 'credit' ? '+' : '−') + fmtMoney(amount).replace(/^[+−]?/, '') + ' logged');
 });
 
@@ -863,6 +925,7 @@ document.getElementById('importFile').addEventListener('change', (ev) => {
         allEntries = imported;
         saveEntries();
         render();
+        renderReasonChips();
         setStatus('Backup imported');
       } else {
         setStatus('Invalid backup file');
@@ -884,6 +947,7 @@ document.getElementById('importFile').addEventListener('change', (ev) => {
   populateCategoryOptions();
   loadEntries();
   render();
+  renderReasonChips();
 })();
 </script>
 </body>
