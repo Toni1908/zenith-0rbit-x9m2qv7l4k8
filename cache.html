@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -136,6 +137,38 @@
   }
   .chart-fill { height: 100%; border-radius: 4px; }
   .chart-amount { font-size: 12px; color: #999; width: 76px; text-align: right; flex-shrink: 0; }
+
+  .chart-divider {
+    height: 1px;
+    background: #232323;
+    margin: 12px 0;
+  }
+  .chart-subhead {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .chart-row.credit-row .chart-cat { color: #4fd68c; font-weight: 600; }
+  .chart-row.credit-row .chart-amount { color: #4fd68c; }
+
+  .trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #1e1e1e;
+  }
+  .trend-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #aaa;
+  }
+  .trend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
   .add-form {
     background: #121212;
@@ -341,8 +374,11 @@
     </div>
   </div>
 
-  <div class="section-label">Spending by category</div>
+  <div class="section-label">Money in &amp; out by category</div>
   <div class="chart-card" id="chartCard"></div>
+
+  <div class="section-label">3-month spend trend</div>
+  <div class="chart-card" id="trendCard"></div>
 
   <div class="add-form">
     <div class="type-toggle">
@@ -434,7 +470,7 @@ function populateCategoryOptions() {
 function recordActivity() {
   try {
     const days = JSON.parse(localStorage.getItem(STREAK_KEY) || '[]');
-    const today = new Date().toISOString().slice(0,10);
+    const today = todayStr();
     if (days[days.length - 1] !== today) {
       days.push(today);
       localStorage.setItem(STREAK_KEY, JSON.stringify(days));
@@ -444,7 +480,10 @@ function recordActivity() {
 
 function todayStr() {
   const d = new Date();
-  return d.toISOString().slice(0,10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function fmtMoney(n) {
@@ -520,23 +559,13 @@ function openingBalanceFor(y, m) {
   return sum;
 }
 
-function renderChart(monthEntries) {
-  const card = document.getElementById('chartCard');
-  const debits = monthEntries.filter(e => e.type === 'debit');
-
-  if (debits.length === 0) {
-    card.innerHTML = '<div class="chart-empty">Nothing spent yet this month — the chart fills in as you log expenses.</div>';
-    return;
-  }
-
+function buildCategoryRows(entries, maxVal) {
   const totals = {};
-  debits.forEach(e => {
+  entries.forEach(e => {
     const cat = e.category || 'Other expenses';
     totals[cat] = (totals[cat] || 0) + e.amount;
   });
-
-  const maxVal = Math.max(...Object.values(totals));
-  const rows = Object.entries(totals)
+  return Object.entries(totals)
     .sort((a, b) => b[1] - a[1])
     .map(([cat, amt]) => {
       const color = CATEGORY_COLORS[cat] || '#8a8a8a';
@@ -550,8 +579,131 @@ function renderChart(monthEntries) {
         </div>
       `;
     }).join('');
+}
 
-  card.innerHTML = rows;
+function renderChart(monthEntries) {
+  const card = document.getElementById('chartCard');
+  const credits = monthEntries.filter(e => e.type === 'credit');
+  const debits = monthEntries.filter(e => e.type === 'debit');
+
+  if (credits.length === 0 && debits.length === 0) {
+    card.innerHTML = '<div class="chart-empty">Nothing logged yet this month — the chart fills in as you add entries.</div>';
+    return;
+  }
+
+  // Shared scale so credit and debit bars are comparable, but kept in
+  // clearly separate groups so credit never reads as an expense category.
+  const creditTotal = credits.reduce((s, e) => s + e.amount, 0);
+  const debitTotals = {};
+  debits.forEach(e => {
+    const cat = e.category || 'Other expenses';
+    debitTotals[cat] = (debitTotals[cat] || 0) + e.amount;
+  });
+  const maxDebit = Object.values(debitTotals).length ? Math.max(...Object.values(debitTotals)) : 0;
+  const maxVal = Math.max(creditTotal, maxDebit);
+
+  let html = '';
+
+  if (credits.length > 0) {
+    const pct = maxVal > 0 ? (creditTotal / maxVal) * 100 : 0;
+    html += `
+      <div class="chart-subhead">Credits</div>
+      <div class="chart-row credit-row">
+        <div class="chart-dot" style="background:#4fd68c"></div>
+        <div class="chart-cat">Total in</div>
+        <div class="chart-track"><div class="chart-fill" style="width:${pct.toFixed(1)}%;background:#4fd68c"></div></div>
+        <div class="chart-amount">${fmtMoney(creditTotal)}</div>
+      </div>
+    `;
+  }
+
+  if (debits.length > 0) {
+    if (credits.length > 0) html += '<div class="chart-divider"></div>';
+    html += '<div class="chart-subhead">Spending by category</div>';
+    html += buildCategoryRows(debits, maxVal);
+  }
+
+  card.innerHTML = html;
+}
+
+function lastThreeMonths(y, m) {
+  // returns 3 {year, month} objects, oldest first, ending at (y, m)
+  const arr = [];
+  for (let i = 2; i >= 0; i--) {
+    let mm = m - i;
+    let yy = y;
+    while (mm < 0) { mm += 12; yy -= 1; }
+    arr.push({ year: yy, month: mm });
+  }
+  return arr;
+}
+
+function debitTotalsForMonth(y, m) {
+  const totals = {};
+  entriesForMonth(y, m).forEach(e => {
+    if (e.type !== 'debit') return;
+    const cat = e.category || 'Other expenses';
+    totals[cat] = (totals[cat] || 0) + e.amount;
+  });
+  return totals;
+}
+
+function renderTrend(y, m) {
+  const card = document.getElementById('trendCard');
+  const months = lastThreeMonths(y, m);
+  const monthTotals = months.map(mo => debitTotalsForMonth(mo.year, mo.month));
+
+  const catsWithData = new Set();
+  monthTotals.forEach(mt => Object.keys(mt).forEach(c => catsWithData.add(c)));
+
+  if (catsWithData.size === 0) {
+    card.innerHTML = '<div class="chart-empty">Not enough history yet — the trend fills in once a couple of months of spending are logged.</div>';
+    return;
+  }
+
+  // known categories first (stable order/colors), then any leftover ones
+  const cats = CATEGORIES.filter(c => catsWithData.has(c))
+    .concat([...catsWithData].filter(c => !CATEGORIES.includes(c)));
+
+  let maxVal = 0;
+  monthTotals.forEach(mt => Object.values(mt).forEach(v => { if (v > maxVal) maxVal = v; }));
+  if (maxVal === 0) maxVal = 1;
+
+  const monthNamesShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const xs = [55, 217, 379];
+  const yTop = 12, yBottom = 92;
+  const yFor = (val) => yBottom - (val / maxVal) * (yBottom - yTop);
+
+  let svgLines = '', svgDots = '';
+  cats.forEach(cat => {
+    const color = CATEGORY_COLORS[cat] || '#8a8a8a';
+    const pts = months.map((mo, i) => `${xs[i]},${yFor(monthTotals[i][cat] || 0).toFixed(1)}`);
+    svgLines += `<polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.9" />`;
+    pts.forEach(p => {
+      const [px, py] = p.split(',');
+      svgDots += `<circle cx="${px}" cy="${py}" r="3" fill="${color}" />`;
+    });
+  });
+
+  const gridLine = `<line x1="30" y1="${yBottom}" x2="404" y2="${yBottom}" stroke="#1e1e1e" stroke-width="1" />`;
+  const labels = months.map((mo, i) =>
+    `<text x="${xs[i]}" y="110" text-anchor="middle" font-size="10" fill="#777">${monthNamesShort[mo.month]}</text>`
+  ).join('');
+
+  const legend = cats.map(cat => {
+    const color = CATEGORY_COLORS[cat] || '#8a8a8a';
+    return `<div class="trend-legend-item"><span class="trend-dot" style="background:${color}"></span>${cat}</div>`;
+  }).join('');
+
+  card.innerHTML = `
+    <svg viewBox="0 0 420 120" style="width:100%;height:auto;display:block;overflow:visible;">
+      ${gridLine}
+      ${svgLines}
+      ${svgDots}
+      ${labels}
+    </svg>
+    <div class="trend-legend">${legend}</div>
+  `;
 }
 
 function render() {
@@ -581,6 +733,7 @@ function render() {
   document.getElementById('nextBtn').disabled = isCurrentOrFuture;
 
   renderChart(monthEntries);
+  renderTrend(viewYear, viewMonth);
 
   const list = document.getElementById('entriesList');
   list.innerHTML = '';
