@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,7 +136,7 @@
   .plan-input:focus { outline: none; border-color: #444; }
   .plan-input::placeholder { color: #555; }
 
-  .history-list { display: flex; flex-direction: column; gap: 6px; }
+  .history-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
   .history-row {
     display: flex;
     align-items: center;
@@ -160,6 +161,104 @@
   .empty { text-align: center; color: #555; font-size: 12px; padding: 20px 0; }
 
   .save-note { font-size: 11px; color: #444; text-align: center; margin-top: 20px; }
+
+  /* ===== Year heatmap ===== */
+  .year-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .year-nav button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .year-nav button:hover { border-color: #333; }
+  .year-nav button:disabled { opacity: 0.3; cursor: default; }
+  .year-title { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+
+  .year-summary {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 18px;
+  }
+  .year-summary strong { color: #4ade80; font-weight: 700; }
+
+  .streak-row { display: flex; gap: 10px; margin-bottom: 18px; }
+  .streak-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 8px;
+    text-align: center;
+  }
+  .streak-label {
+    font-size: 9px;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .streak-value {
+    font-size: 19px;
+    font-weight: 800;
+    color: #4ade80;
+    margin-top: 3px;
+  }
+
+  .month-block { margin-bottom: 0; }
+  .month-block-label {
+    font-size: 9px;
+    color: #777;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: var(--border);
+  }
+  .day-cell.done { cursor: pointer; }
+  .day-cell.missed { cursor: pointer; }
+  .day-cell.missed:hover { background: #262626; }
+  .day-cell.done:hover { filter: brightness(1.2); }
+  .day-cell.future { background: transparent; border: 1px dashed #1c1c1c; }
+  .day-cell.is-today { box-shadow: 0 0 0 1.5px #fff inset; }
+
+  #yearGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 16px 10px;
+  }
+
+  .year-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 16px 0 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .year-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #aaa;
+  }
+  .year-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 
   /* ===== shared polish ===== */
   @keyframes fadeInUp {
@@ -236,6 +335,17 @@
   <div class="section-label">Last 14 days</div>
   <div class="history-list" id="historyList"></div>
 
+  <div class="section-label">Year</div>
+  <div class="year-nav">
+    <button id="prevYearBtn">&#8592;</button>
+    <div class="year-title" id="yearTitle">—</div>
+    <button id="nextYearBtn">&#8594;</button>
+  </div>
+  <div class="streak-row" id="streakRow"></div>
+  <div class="year-summary" id="yearSummary"></div>
+  <div id="yearGrid"></div>
+  <div class="year-legend" id="yearLegend"></div>
+
   <div class="save-note">Saved automatically to this browser</div>
 </div>
 
@@ -260,26 +370,33 @@ function showToast(msg, isError) {
 }
 
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PLAN_KEY = 'workout_plan';
 const LOG_KEY = 'workout_log';
 const STREAK_KEY = 'hub_streak_days';
 
 let plan = {};
 let log = {};
+let viewYear = new Date().getFullYear();
+
+function todayStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 function recordActivity() {
   try {
     const days = JSON.parse(localStorage.getItem(STREAK_KEY) || '[]');
-    const today = new Date().toISOString().slice(0,10);
+    const today = todayStr();
     if (days[days.length - 1] !== today) {
       days.push(today);
       localStorage.setItem(STREAK_KEY, JSON.stringify(days));
     }
   } catch (e) { /* non-critical */ }
-}
-
-function todayStr() {
-  return new Date().toISOString().slice(0,10);
 }
 
 function loadData() {
@@ -322,6 +439,7 @@ function renderToday() {
     if (nowDone) recordActivity();
     renderToday();
     renderHistory();
+    renderYear();
     showToast(nowDone ? (workoutName ? workoutName + ' done ✓' : 'Marked done') : 'Unmarked');
   };
 }
@@ -359,7 +477,10 @@ function renderHistory() {
   for (let i = 0; i < 14; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    days.push(d.toISOString().slice(0,10));
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    days.push(`${y}-${m}-${day}`);
   }
 
   const hasAny = days.some(d => log[d]);
@@ -386,11 +507,171 @@ function renderHistory() {
   });
 }
 
+function daysInMonth(y, m) {
+  return new Date(y, m + 1, 0).getDate();
+}
+
+const WORKOUT_PALETTE = ['#4ade80','#60a5fa','#f87171','#facc15','#c084fc','#fb923c','#2dd4bf','#f472b6'];
+function colorForWorkout(name) {
+  const clean = (name || 'Workout').trim() || 'Workout';
+  let hash = 0;
+  for (let i = 0; i < clean.length; i++) {
+    hash = (hash * 31 + clean.charCodeAt(i)) >>> 0;
+  }
+  return WORKOUT_PALETTE[hash % WORKOUT_PALETTE.length];
+}
+
+function computeCurrentStreak() {
+  const todayKey = todayStr();
+  let cur = 0;
+  const cursor = new Date(todayKey + 'T00:00:00');
+  const todayEntry = log[todayKey];
+  if (!(todayEntry && todayEntry.done)) cursor.setDate(cursor.getDate() - 1);
+  let safety = 0;
+  while (safety < 3650) {
+    const key = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+    const e = log[key];
+    if (e && e.done) {
+      cur++;
+      cursor.setDate(cursor.getDate() - 1);
+      safety++;
+    } else break;
+  }
+  return cur;
+}
+
+function computeLongestStreakInYear(year, todayKey) {
+  let longest = 0, run = 0;
+  for (let m = 0; m < 12; m++) {
+    const nd = daysInMonth(year, m);
+    for (let d = 1; d <= nd; d++) {
+      const dateKey = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if (dateKey > todayKey) break;
+      const entry = log[dateKey];
+      if (entry && entry.done) {
+        run++;
+        if (run > longest) longest = run;
+      } else {
+        run = 0;
+      }
+    }
+  }
+  return longest;
+}
+
+function renderYear() {
+  document.getElementById('yearTitle').textContent = String(viewYear);
+
+  const now = new Date();
+  document.getElementById('nextYearBtn').disabled = viewYear >= now.getFullYear();
+
+  const todayKey = todayStr();
+  const grid = document.getElementById('yearGrid');
+  grid.innerHTML = '';
+
+  let doneCount = 0;
+  let loggedDaysSoFar = 0;
+  const workoutsSeen = new Set();
+
+  for (let m = 0; m < 12; m++) {
+    const numDays = daysInMonth(viewYear, m);
+    const block = document.createElement('div');
+    block.className = 'month-block';
+
+    const label = document.createElement('div');
+    label.className = 'month-block-label';
+    label.textContent = MONTH_SHORT[m];
+    block.appendChild(label);
+
+    const dayGrid = document.createElement('div');
+    dayGrid.className = 'day-grid';
+
+    for (let d = 1; d <= numDays; d++) {
+      const dateKey = `${viewYear}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isFuture = dateKey > todayKey;
+      const isToday = dateKey === todayKey;
+      const entry = log[dateKey];
+      const isDone = !!(entry && entry.done);
+
+      const cell = document.createElement('div');
+      cell.className = 'day-cell'
+        + (isDone ? ' done' : (isFuture ? ' future' : ' missed'))
+        + (isToday ? ' is-today' : '');
+
+      if (isDone) {
+        const workoutName = entry.workout || 'Workout';
+        cell.style.background = colorForWorkout(workoutName);
+        workoutsSeen.add(workoutName);
+      }
+
+      if (!isFuture) {
+        loggedDaysSoFar++;
+        if (isDone) doneCount++;
+        cell.addEventListener('click', () => {
+          const d2 = new Date(dateKey + 'T00:00:00');
+          const dLabel = d2.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          const msg = isDone
+            ? `${dLabel}: ${entry.workout || 'Workout'} \u2014 done`
+            : `${dLabel}: no session logged`;
+          showToast(msg);
+        });
+      }
+
+      dayGrid.appendChild(cell);
+    }
+
+    block.appendChild(dayGrid);
+    grid.appendChild(block);
+  }
+
+  const summary = document.getElementById('yearSummary');
+  if (loggedDaysSoFar === 0) {
+    summary.textContent = '';
+  } else {
+    summary.innerHTML = `<strong>${doneCount}</strong> of ${loggedDaysSoFar} days trained${viewYear === now.getFullYear() ? ' so far' : ''}`;
+  }
+
+  const streakRow = document.getElementById('streakRow');
+  const currentStreak = computeCurrentStreak();
+  const bestStreak = computeLongestStreakInYear(viewYear, todayKey);
+  streakRow.innerHTML = `
+    <div class="streak-box">
+      <div class="streak-label">Current streak</div>
+      <div class="streak-value">${currentStreak}</div>
+    </div>
+    <div class="streak-box">
+      <div class="streak-label">Best this year</div>
+      <div class="streak-value">${bestStreak}</div>
+    </div>
+  `;
+
+  const legendEl = document.getElementById('yearLegend');
+  if (workoutsSeen.size === 0) {
+    legendEl.innerHTML = '';
+  } else {
+    legendEl.innerHTML = [...workoutsSeen].sort().map(w =>
+      `<div class="year-legend-item"><span class="year-legend-dot" style="background:${colorForWorkout(w)}"></span>${w}</div>`
+    ).join('');
+  }
+}
+
+document.getElementById('prevYearBtn').addEventListener('click', () => {
+  viewYear--;
+  renderYear();
+});
+document.getElementById('nextYearBtn').addEventListener('click', () => {
+  if (viewYear < new Date().getFullYear()) {
+    viewYear++;
+    renderYear();
+  }
+});
+
 (function init() {
   loadData();
   renderToday();
   renderPlan();
   renderHistory();
+  renderYear();
 })();
 </script>
 </body>
