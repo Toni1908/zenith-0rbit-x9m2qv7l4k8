@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,6 +128,7 @@
   .icon-split     { background: rgba(248,113,113,0.14); color: #f87171; }
   .icon-backup    { background: rgba(224,184,79,0.14);  color: #e0b84f; }
   .icon-anchors   { background: rgba(167,139,250,0.14); color: #a78bfa; }
+  .icon-counters  { background: rgba(167,139,250,0.14); color: #a78bfa; }
 
   .card-body { flex: 1; min-width: 0; }
   .card-title-row {
@@ -314,6 +316,18 @@
     <div class="card-arrow">&#8250;</div>
   </a>
 
+  <a class="card" href="counters.html">
+    <div class="card-icon icon-counters">◎</div>
+    <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-title">Counters</div>
+        <div class="card-snippet" id="countersSnippet"></div>
+      </div>
+      <div class="card-sub">Track anything toward a goal — visits, streaks, tallies</div>
+    </div>
+    <div class="card-arrow">&#8250;</div>
+  </a>
+
   <div class="section-label">Utilities</div>
 
   <a class="card" href="backup.html">
@@ -453,10 +467,28 @@ function renderBacklogSnippet() {
   }
 }
 
+function renderCountersSnippet() {
+  const el = document.getElementById('countersSnippet');
+  try {
+    const counters = JSON.parse(localStorage.getItem('hub_counters') || '[]');
+    if (!counters.length) { el.textContent = ''; return; }
+    if (counters.length === 1) {
+      const c = counters[0];
+      el.textContent = c.target ? (c.count + '/' + c.target) : String(c.count);
+    } else {
+      el.textContent = counters.length + ' active';
+    }
+    el.style.color = '#a78bfa';
+  } catch (e) {
+    el.textContent = '';
+  }
+}
+
 renderStreak();
 renderCacheSnippet();
 renderSplitSnippet();
 renderBacklogSnippet();
+renderCountersSnippet();
 </script>
 </body>
 </html>
