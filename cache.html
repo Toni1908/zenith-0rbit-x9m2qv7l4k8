@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -247,6 +248,143 @@
   }
   .submit-btn:hover { background: #dcdcdc; }
 
+  .balance-card { cursor: pointer; transition: border-color 0.15s; }
+  .balance-card:hover { border-color: #3a3a3a; }
+  .balance-card.active { border-color: #444; }
+
+  .accounts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 10px 2px;
+  }
+  .manage-toggle {
+    background: none;
+    border: none;
+    color: #666;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .manage-toggle:hover { color: #f2f2f2; }
+
+  .accounts-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    margin-bottom: 20px;
+    scrollbar-width: none;
+  }
+  .accounts-scroll::-webkit-scrollbar { display: none; }
+  .account-chip-card {
+    flex: 0 0 auto;
+    min-width: 108px;
+    background: #121212;
+    border: 1px solid #232323;
+    border-left: 3px solid var(--acc-color, #444);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .account-chip-card.active { border-color: #444; background: #171717; box-shadow: 0 0 0 1px #3a3a3a inset; }
+  .account-chip-card:hover { border-color: #3a3a3a; }
+  .account-chip-name {
+    font-size: 11px;
+    color: #999;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+  }
+  .account-chip-balance { font-size: 14px; font-weight: 700; color: #f2f2f2; }
+  .account-chip-balance.neg { color: #e2574f; }
+
+  .manage-panel {
+    background: #121212;
+    border: 1px solid #232323;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .account-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .account-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .account-name-input {
+    flex: 1;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    border-radius: 6px;
+    color: #f2f2f2;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+  .account-name-input:focus { outline: none; border-color: #444; }
+  .account-del-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 6px;
+    flex-shrink: 0;
+  }
+  .account-del-btn:hover { color: #e2574f; }
+  .account-add-row { display: flex; gap: 8px; margin-top: 4px; }
+  .account-add-row input {
+    flex: 1;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    border-radius: 6px;
+    color: #f2f2f2;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  .account-add-row input:focus { outline: none; border-color: #444; }
+  .account-add-row button {
+    background: #1c1c1c;
+    border: 1px solid #2a2a2a;
+    color: #f2f2f2;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .account-add-row button:hover { background: #242424; }
+
+  .select-row { display: flex; gap: 8px; }
+  .select-row select { flex: 1; margin-bottom: 10px; }
+
+  .entry-account-select {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 0;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .entry-account-select:focus { outline: none; }
+
   .entries-label { font-size: 12px; color: #8a8a8a; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 2px; }
   .entry {
     display: flex;
@@ -377,9 +515,23 @@
     <button id="nextBtn">&#8594;</button>
   </div>
 
-  <div class="balance-card">
-    <div class="balance-label">Closing balance</div>
+  <div class="balance-card" id="overallCard">
+    <div class="balance-label" id="balanceLabel">Overall balance</div>
     <div class="balance-value" id="closingBalance">₹0.00</div>
+  </div>
+
+  <div class="accounts-head">
+    <div class="section-label" style="margin:0;">Accounts</div>
+    <button class="manage-toggle" id="manageToggle" type="button">Manage</button>
+  </div>
+  <div class="accounts-scroll" id="accountsScroll"></div>
+
+  <div class="manage-panel" id="managePanel" style="display:none;">
+    <div id="accountRows"></div>
+    <div class="account-add-row">
+      <input type="text" id="newAccountName" placeholder="New account name">
+      <button id="addAccountBtn" type="button">+ Add</button>
+    </div>
   </div>
 
   <div class="stat-row">
@@ -409,20 +561,23 @@
       <button class="type-btn" id="debitBtn" type="button">− Debit</button>
     </div>
     <input type="number" id="amountInput" placeholder="Amount (e.g. 152.35)" inputmode="decimal" step="0.01">
-    <select id="categoryInput">
-      <option value="Food">Food</option>
-      <option value="Fuel">Fuel</option>
-      <option value="Salary">Salary</option>
-      <option value="Bills">Bills</option>
-      <option value="Other expenses">Other expenses</option>
-    </select>
+    <div class="select-row">
+      <select id="accountInput"></select>
+      <select id="categoryInput">
+        <option value="Food">Food</option>
+        <option value="Fuel">Fuel</option>
+        <option value="Salary">Salary</option>
+        <option value="Bills">Bills</option>
+        <option value="Other expenses">Other expenses</option>
+      </select>
+    </div>
     <input type="text" id="reasonInput" placeholder="Reason (e.g. groceries, petrol)">
     <div class="chip-row" id="reasonChips"></div>
     <input type="date" id="dateInput">
     <button class="submit-btn" id="addBtn">Add entry</button>
   </div>
 
-  <div class="entries-label">Entries this month</div>
+  <div class="entries-label" id="entriesLabel">Entries this month</div>
   <div id="entriesList"></div>
 
   <div class="export-row">
@@ -455,12 +610,16 @@ function showToast(msg, isError) {
 }
 
 let allEntries = [];
+let accounts = [];
+let accountFilter = 'all';
 let currentType = 'credit';
 let viewYear, viewMonth; // viewMonth 0-indexed
 
 const STORAGE_KEY = 'cache_entries';
+const ACCOUNTS_KEY = 'cache_accounts';
 const SETTINGS_KEY = 'hub_settings';
 const STREAK_KEY = 'hub_streak_days';
+const ACCOUNT_PALETTE = ['#4fb2e2', '#e2a34f', '#9b7fe0', '#4fd6b0', '#e2574f', '#7fe04f', '#e04f9b', '#6f8fe0'];
 
 let CURRENCY = '₹';
 let CATEGORIES = ['Food', 'Fuel', 'Salary', 'Bills', 'Other expenses'];
@@ -489,6 +648,45 @@ function loadSettings() {
 function populateCategoryOptions() {
   const select = document.getElementById('categoryInput');
   select.innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function loadAccounts() {
+  try {
+    const raw = localStorage.getItem(ACCOUNTS_KEY);
+    accounts = raw ? JSON.parse(raw) : [];
+  } catch (e) { accounts = []; }
+  if (!accounts.length) {
+    accounts = [
+      { id: 'acc1', name: 'Account 1', color: ACCOUNT_PALETTE[0] },
+      { id: 'acc2', name: 'Account 2', color: ACCOUNT_PALETTE[1] },
+      { id: 'acc3', name: 'Account 3', color: ACCOUNT_PALETTE[2] },
+    ];
+    saveAccounts();
+  }
+}
+
+function saveAccounts() {
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+}
+
+function getAccount(id) {
+  return accounts.find(a => a.id === id) || { id, name: 'Unassigned', color: '#8a8a8a' };
+}
+
+function migrateEntries() {
+  let changed = false;
+  const fallback = accounts[0] ? accounts[0].id : null;
+  allEntries.forEach(e => {
+    if (!e.account && fallback) { e.account = fallback; changed = true; }
+  });
+  if (changed) saveEntries();
+}
+
+function populateAccountOptions() {
+  const select = document.getElementById('accountInput');
+  const prev = select.value;
+  select.innerHTML = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+  if (prev && accounts.some(a => a.id === prev)) select.value = prev;
 }
 
 function recordActivity() {
@@ -567,16 +765,31 @@ function setStatus(msg) {
   showToast(msg, isError);
 }
 
-function entriesForMonth(y, m) {
+function entriesForMonth(y, m, accountId = 'all') {
   const key = monthKey(y, m);
-  return allEntries.filter(e => e.date.slice(0,7) === key);
+  return allEntries.filter(e =>
+    e.date.slice(0,7) === key && (accountId === 'all' || e.account === accountId)
+  );
 }
 
-function openingBalanceFor(y, m) {
+function openingBalanceFor(y, m, accountId = 'all') {
   const cutoff = monthKey(y, m);
   let sum = 0;
   for (const e of allEntries) {
+    if (accountId !== 'all' && e.account !== accountId) continue;
     if (e.date.slice(0,7) < cutoff) {
+      sum += e.type === 'credit' ? e.amount : -e.amount;
+    }
+  }
+  return sum;
+}
+
+function balanceThroughMonth(y, m, accountId = 'all') {
+  const cutoff = monthKey(y, m);
+  let sum = 0;
+  for (const e of allEntries) {
+    if (accountId !== 'all' && e.account !== accountId) continue;
+    if (e.date.slice(0,7) <= cutoff) {
       sum += e.type === 'credit' ? e.amount : -e.amount;
     }
   }
@@ -662,9 +875,9 @@ function lastThreeMonths(y, m) {
   return arr;
 }
 
-function debitTotalsForMonth(y, m) {
+function debitTotalsForMonth(y, m, accountId = 'all') {
   const totals = {};
-  entriesForMonth(y, m).forEach(e => {
+  entriesForMonth(y, m, accountId).forEach(e => {
     if (e.type !== 'debit') return;
     const cat = e.category || 'Other expenses';
     totals[cat] = (totals[cat] || 0) + e.amount;
@@ -672,10 +885,10 @@ function debitTotalsForMonth(y, m) {
   return totals;
 }
 
-function renderTrend(y, m) {
+function renderTrend(y, m, accountId = 'all') {
   const card = document.getElementById('trendCard');
   const months = lastThreeMonths(y, m);
-  const monthTotals = months.map(mo => debitTotalsForMonth(mo.year, mo.month));
+  const monthTotals = months.map(mo => debitTotalsForMonth(mo.year, mo.month, accountId));
 
   const catsWithData = new Set();
   monthTotals.forEach(mt => Object.keys(mt).forEach(c => catsWithData.add(c)));
@@ -773,19 +986,96 @@ function renderReasonChips() {
   });
 }
 
+function renderAccountsRow() {
+  const wrap = document.getElementById('accountsScroll');
+  wrap.innerHTML = '';
+  accounts.forEach(a => {
+    const bal = balanceThroughMonth(viewYear, viewMonth, a.id);
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'account-chip-card' + (accountFilter === a.id ? ' active' : '');
+    card.style.setProperty('--acc-color', a.color);
+    card.innerHTML = `
+      <div class="account-chip-name">${escapeHtml(a.name)}</div>
+      <div class="account-chip-balance ${bal < 0 ? 'neg' : ''}">${fmtMoney(bal)}</div>
+    `;
+    card.addEventListener('click', () => {
+      accountFilter = (accountFilter === a.id) ? 'all' : a.id;
+      render();
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function renderAccountRows() {
+  const wrap = document.getElementById('accountRows');
+  wrap.innerHTML = '';
+  accounts.forEach(a => {
+    const row = document.createElement('div');
+    row.className = 'account-row';
+    row.innerHTML = `
+      <span class="account-dot" style="background:${a.color}"></span>
+      <input type="text" class="account-name-input" data-id="${a.id}" value="${escapeHtml(a.name)}">
+      <button type="button" class="account-del-btn" data-id="${a.id}" title="Delete account">&#10005;</button>
+    `;
+    wrap.appendChild(row);
+  });
+
+  wrap.querySelectorAll('.account-name-input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const id = inp.getAttribute('data-id');
+      const acc = accounts.find(a => a.id === id);
+      const val = inp.value.trim();
+      if (!acc || !val) { if (acc) inp.value = acc.name; return; }
+      acc.name = val;
+      saveAccounts();
+      populateAccountOptions();
+      render();
+    });
+  });
+
+  wrap.querySelectorAll('.account-del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      if (accounts.length <= 1) { showToast('Keep at least one account', true); return; }
+      const acc = accounts.find(a => a.id === id);
+      const count = allEntries.filter(e => e.account === id).length;
+      const msg = count > 0
+        ? `Delete "${acc.name}"? This also deletes ${count} ${count === 1 ? 'entry' : 'entries'} logged to it.`
+        : `Delete "${acc.name}"?`;
+      if (!confirm(msg)) return;
+
+      accounts = accounts.filter(a => a.id !== id);
+      allEntries = allEntries.filter(e => e.account !== id);
+      saveAccounts();
+      saveEntries();
+      if (accountFilter === id) accountFilter = 'all';
+
+      renderAccountRows();
+      populateAccountOptions();
+      render();
+      renderReasonChips();
+      showToast(`Deleted ${acc.name}`);
+    });
+  });
+}
+
 function render() {
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('monthTitle').textContent = monthNames[viewMonth] + ' ' + viewYear;
 
-  const monthEntries = entriesForMonth(viewYear, viewMonth).sort((a,b) => a.date.localeCompare(b.date));
-  const opening = openingBalanceFor(viewYear, viewMonth);
+  const monthEntries = entriesForMonth(viewYear, viewMonth, accountFilter).sort((a,b) => a.date.localeCompare(b.date));
+  const opening = openingBalanceFor(viewYear, viewMonth, accountFilter);
   let credit = 0, debit = 0;
   for (const e of monthEntries) {
     if (e.type === 'credit') credit += e.amount; else debit += e.amount;
   }
   const closing = opening + credit - debit;
 
-  document.getElementById('monthSub').textContent = monthEntries.length + (monthEntries.length === 1 ? ' entry' : ' entries');
+  document.getElementById('balanceLabel').textContent = accountFilter === 'all' ? 'Overall balance' : getAccount(accountFilter).name + ' balance';
+  document.getElementById('overallCard').classList.toggle('active', accountFilter === 'all');
+  document.getElementById('monthSub').textContent = monthEntries.length + (monthEntries.length === 1 ? ' entry' : ' entries') +
+    (accountFilter !== 'all' ? ' \u00b7 ' + getAccount(accountFilter).name : '');
   document.getElementById('openingStat').textContent = fmtMoney(opening);
   document.getElementById('creditStat').textContent = fmtMoney(credit);
   document.getElementById('debitStat').textContent = fmtMoney(debit);
@@ -799,8 +1089,12 @@ function render() {
     (viewYear === now.getFullYear() && viewMonth >= now.getMonth());
   document.getElementById('nextBtn').disabled = isCurrentOrFuture;
 
+  renderAccountsRow();
   renderChart(monthEntries);
-  renderTrend(viewYear, viewMonth);
+  renderTrend(viewYear, viewMonth, accountFilter);
+
+  const entriesLabel = document.getElementById('entriesLabel');
+  entriesLabel.textContent = 'Entries this month' + (accountFilter !== 'all' ? ' \u00b7 ' + getAccount(accountFilter).name : '');
 
   const list = document.getElementById('entriesList');
   list.innerHTML = '';
@@ -815,11 +1109,16 @@ function render() {
     const dateLabel = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
     const cat = e.category || 'Other expenses';
     const catColor = CATEGORY_COLORS[cat] || '#8a8a8a';
+    const accId = e.account || (accounts[0] ? accounts[0].id : null);
+    const acc = getAccount(accId);
     row.innerHTML = `
       <div class="entry-left">
         <div class="entry-reason">${escapeHtml(e.reason || cat)}</div>
         <div class="entry-meta">
           <span class="entry-cat-tag" style="background:${catColor}22;color:${catColor}">${cat}</span>
+          <select class="entry-account-select" data-id="${e.id}" style="color:${acc.color}">
+            ${accounts.map(a => `<option value="${a.id}" ${a.id === accId ? 'selected' : ''}>${escapeHtml(a.name)}</option>`).join('')}
+          </select>
           <span>${dateLabel}</span>
         </div>
       </div>
@@ -837,6 +1136,17 @@ function render() {
       saveEntries();
       render();
       renderReasonChips();
+    });
+  });
+  list.querySelectorAll('.entry-account-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const id = sel.getAttribute('data-id');
+      const entry = allEntries.find(e => e.id === id);
+      if (entry) {
+        entry.account = sel.value;
+        saveEntries();
+        render();
+      }
     });
   });
 }
@@ -865,16 +1175,19 @@ document.getElementById('addBtn').addEventListener('click', () => {
   const reasonInput = document.getElementById('reasonInput');
   const dateInput = document.getElementById('dateInput');
   const categoryInput = document.getElementById('categoryInput');
+  const accountInput = document.getElementById('accountInput');
 
   const amount = Math.round(parseFloat(amountInput.value) * 100) / 100;
   if (!amount || amount <= 0) { setStatus('Enter a valid amount'); return; }
   const date = dateInput.value || todayStr();
   const reason = reasonInput.value.trim();
   const category = categoryInput.value;
+  const account = accountInput.value;
+  if (!account) { setStatus('Select an account'); return; }
 
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-    amount, reason, type: currentType, date, category
+    amount, reason, type: currentType, date, category, account
   };
   allEntries.push(entry);
   saveEntries();
@@ -887,7 +1200,7 @@ document.getElementById('addBtn').addEventListener('click', () => {
 
   render();
   renderReasonChips();
-  showToast((currentType === 'credit' ? '+' : '−') + fmtMoney(amount).replace(/^[+−]?/, '') + ' logged');
+  showToast((currentType === 'credit' ? '+' : '−') + fmtMoney(amount).replace(/^[+−]?/, '') + ' logged \u00b7 ' + getAccount(account).name);
 });
 
 document.getElementById('prevBtn').addEventListener('click', () => {
@@ -938,6 +1251,34 @@ document.getElementById('importFile').addEventListener('change', (ev) => {
   ev.target.value = '';
 });
 
+document.getElementById('overallCard').addEventListener('click', () => {
+  accountFilter = 'all';
+  render();
+});
+
+document.getElementById('manageToggle').addEventListener('click', () => {
+  const panel = document.getElementById('managePanel');
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  document.getElementById('manageToggle').textContent = isHidden ? 'Done' : 'Manage';
+  if (isHidden) renderAccountRows();
+});
+
+document.getElementById('addAccountBtn').addEventListener('click', () => {
+  const input = document.getElementById('newAccountName');
+  const name = input.value.trim();
+  if (!name) { showToast('Enter an account name', true); return; }
+  const id = 'acc_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  const color = ACCOUNT_PALETTE[accounts.length % ACCOUNT_PALETTE.length];
+  accounts.push({ id, name, color });
+  saveAccounts();
+  input.value = '';
+  renderAccountRows();
+  populateAccountOptions();
+  render();
+  showToast(`Added ${name}`);
+});
+
 (function init() {
   const now = new Date();
   viewYear = now.getFullYear();
@@ -945,7 +1286,10 @@ document.getElementById('importFile').addEventListener('change', (ev) => {
   document.getElementById('dateInput').value = todayStr();
   loadSettings();
   populateCategoryOptions();
+  loadAccounts();
   loadEntries();
+  migrateEntries();
+  populateAccountOptions();
   render();
   renderReasonChips();
 })();
