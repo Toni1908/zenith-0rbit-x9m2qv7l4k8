@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Counters">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<title>Counters</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:        #080808;
+    --surface:   #101010;
+    --plate:     #0c0c0c;
+    --border:    #1c1c1c;
+    --border-2:  #262626;
+    --text:      #e0e0e0;
+    --muted:     #444;
+    --accent:    #a78bfa;
+    --accent-dim:rgba(167,139,250,0.14);
+    --complete:  #4ade80;
+    --danger:    #e2574f;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Exo 2', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 24px 16px 56px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .backlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #555;
+    text-decoration: none;
+    margin-bottom: 14px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 22px;
+  }
+  .header-eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-sub {
+    font-size: 11.5px;
+    color: #555;
+    letter-spacing: 0.3px;
+  }
+  .header-readout {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .readout-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* ── DIGIT REELS (shared: header + cards) ── */
+  .digit-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 800;
+    color: var(--accent);
+    background: #0a0a0a;
+    border: 1px solid var(--border-2);
+    border-radius: 4px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.65);
+    margin-right: 2px;
+  }
+  .digit-slot.hdr {
+    width: 20px;
+    height: 28px;
+    font-size: 15px;
+  }
+  .digit-slot.big {
+    width: 28px;
+    height: 40px;
+    font-size: 22px;
+  }
+  .digit-slot.done { color: var(--complete); border-color: #2a3a2a; }
+
+  @keyframes digitRoll {
+    0%   { transform: translateY(-40%); opacity: 0.25; }
+    55%  { transform: translateY(8%);   opacity: 1; }
+    100% { transform: translateY(0); }
+  }
+  .digit-slot.roll { animation: digitRoll 0.3s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    .digit-slot.roll { animation: none; }
+  }
+
+  /* ── NEW ENTRY TICKET ── */
+  .ticket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 1px dashed #2e2e2e;
+    border-radius: 8px;
+    padding: 16px 14px 14px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .ticket-eyebrow {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #3a3a3a;
+    margin-bottom: 10px;
+  }
+  .ticket-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #252525;
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 10px;
+    outline: none;
+    margin-bottom: 8px;
+  }
+  .ticket-input::placeholder { color: #3a3a3a; font-weight: 400; }
+  .ticket-input:focus { border-color: #5b21b6; }
+  .ticket-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ticket-input-num {
+    flex: 1;
+    min-width: 0;
+    background: #0a0a0a;
+    border: 1px solid #252525;
+    border-radius: 5px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 10px;
+    outline: none;
+  }
+  .ticket-input-num::placeholder { color: #3a3a3a; font-family: var(--sans); font-weight: 400; }
+  .ticket-input-num:focus { border-color: #5b21b6; }
+  .ticket-input-num::-webkit-outer-spin-button,
+  .ticket-input-num::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .ticket-input-num[type=number] { -moz-appearance: textfield; }
+
+  .punch-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 9px 16px;
+    border-radius: 5px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .punch-btn:hover  { opacity: 0.7; }
+  .punch-btn:active { opacity: 0.4; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 36px 0 20px;
+  }
+  .empty-text {
+    font-size: 13px;
+    color: #333;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-style: italic;
+  }
+
+  /* ── TALLY PLATE (counter card) ── */
+  .plate {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .plate.done { border-color: #1e3324; }
+  .plate-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .plate-name {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .plate-target {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #444;
+    white-space: nowrap;
+  }
+
+  .plate-mid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .odometer { display: flex; align-items: center; }
+  .odometer-sep {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: #333;
+    margin: 0 8px;
+  }
+  .odometer-target {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 500;
+    color: #444;
+  }
+
+  .click-btn {
+    flex-shrink: 0;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+    background: radial-gradient(circle at 32% 28%, rgba(167,139,250,0.20), rgba(167,139,250,0.03));
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(167,139,250,0);
+    transition: transform 0.12s ease, box-shadow 0.15s ease;
+  }
+  .click-btn:hover  { box-shadow: 0 0 16px rgba(167,139,250,0.32); }
+  .click-btn:active { transform: scale(0.88); }
+  .click-btn.done {
+    border-color: var(--complete);
+    background: radial-gradient(circle at 32% 28%, rgba(74,222,128,0.22), rgba(74,222,128,0.03));
+    color: var(--complete);
+  }
+  .click-btn.done:hover { box-shadow: 0 0 16px rgba(74,222,128,0.32); }
+
+  /* ── TALLY RAIL ── */
+  .tally-rail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 3px;
+    min-height: 16px;
+    margin-bottom: 4px;
+  }
+  .tick {
+    width: 3.5px;
+    height: 11px;
+    border-radius: 1px;
+    background: #1a1a1a;
+    flex-shrink: 0;
+  }
+  .tick.group5 { height: 16px; }
+  .tick.filled { background: var(--accent); box-shadow: 0 0 3px rgba(167,139,250,0.55); }
+  .tick.filled.done { background: var(--complete); box-shadow: 0 0 3px rgba(74,222,128,0.55); }
+  .open-caption {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  /* ── PLATE FOOTER ── */
+  .plate-foot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .text-btn {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    transition: color 0.15s;
+  }
+  .text-btn:hover { color: #888; }
+  .text-btn.danger:hover { color: var(--danger); }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    color: #eee;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    opacity: 0;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.win {
+    background: #0a1f14;
+    border-color: #22c55e;
+    color: #86efac;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 22px;
+    box-shadow: 0 0 24px rgba(34,197,94,0.35);
+  }
+
+  /* ===== shared polish ===== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  body { animation: fadeInUp 0.35s ease; }
+  body { padding-top: calc(env(safe-area-inset-top, 0px)); }
+  @media (prefers-reduced-motion: reduce) {
+    body { animation: none; }
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
+  * { scrollbar-width: thin; scrollbar-color: #262626 transparent; }
+
+  button { transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, opacity 0.15s ease; }
+  button:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<a class="backlink" href="index.html">&#8592; Hub</a>
+
+<div class="header">
+  <div>
+    <div class="header-eyebrow">◎ Counters</div>
+    <div class="header-sub">click through anything you're counting toward</div>
+  </div>
+  <div class="header-readout" id="header-readout"></div>
+</div>
+
+<!-- NEW ENTRY -->
+<div class="ticket">
+  <div class="ticket-eyebrow">// new tally</div>
+  <input class="ticket-input" id="counter-name-input" type="text" placeholder="Name (e.g. Temple Visits)" />
+  <div class="ticket-row">
+    <input class="ticket-input-num" id="counter-start-input" type="number" placeholder="start" min="0" />
+    <input class="ticket-input-num" id="counter-target-input" type="number" placeholder="target (opt.)" min="1" />
+    <button class="punch-btn" onclick="addCounter()">Add</button>
+  </div>
+</div>
+
+<div class="section-label">Active</div>
+<div id="counters-list"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+
+const COUNTERS_KEY = 'hub_counters';
+let lastChangedId = null;
+
+function loadCounters() {
+  try {
+    const c = localStorage.getItem(COUNTERS_KEY);
+    return c ? JSON.parse(c) : [];
+  } catch { return []; }
+}
+
+function saveCounters(counters) {
+  localStorage.setItem(COUNTERS_KEY, JSON.stringify(counters));
+}
+
+// ─── DIGIT / TICK HELPERS ──────────────────────────────────────────────────
+
+function digitReel(num, size, done, roll) {
+  const str = num < 10 ? '0' + num : String(num);
+  return str.split('').map(ch =>
+    `<span class="digit-slot ${size}${done ? ' done' : ''}${roll ? ' roll' : ''}">${ch}</span>`
+  ).join('');
+}
+
+function tallyRail(count, target, done) {
+  const capped = Math.min(target, 60);
+  let html = '';
+  for (let i = 1; i <= capped; i++) {
+    const filled = i <= count;
+    const group5 = i % 5 === 0;
+    html += `<div class="tick${group5 ? ' group5' : ''}${filled ? ' filled' : ''}${filled && done ? ' done' : ''}"></div>`;
+  }
+  if (target > 60) {
+    html += `<div class="open-caption" style="margin-left:6px;align-self:center;">+${target - 60} more</div>`;
+  }
+  return html;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+
+function renderHeaderReadout(count) {
+  const el = document.getElementById('header-readout');
+  el.innerHTML = digitReel(count, 'hdr', false, false) + '<span class="readout-label">active</span>';
+}
+
+function renderCounters() {
+  const counters = loadCounters();
+  const list = document.getElementById('counters-list');
+  list.innerHTML = '';
+
+  renderHeaderReadout(counters.length);
+
+  if (!counters.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <svg width="60" height="60" viewBox="0 0 72 72" fill="none" stroke="#252525" stroke-width="2">
+          <rect x="14" y="10" width="44" height="24" rx="4"/>
+          <line x1="25" y1="16" x2="25" y2="28"/>
+          <line x1="36" y1="16" x2="36" y2="28"/>
+          <line x1="47" y1="16" x2="47" y2="28"/>
+          <path d="M20 34 L20 44 Q20 50 26 50 L46 50 Q52 50 52 44 L52 34"/>
+          <circle cx="36" cy="58" r="7"/>
+        </svg>
+        <div class="empty-text">Nothing on the counter yet</div>
+      </div>`;
+    return;
+  }
+
+  counters.forEach(c => {
+    const hasTarget = !!(c.target && c.target > 0);
+    const done      = hasTarget && c.count >= c.target;
+    const roll      = c.id === lastChangedId;
+
+    const card = document.createElement('div');
+    card.className = 'plate' + (done ? ' done' : '');
+    card.innerHTML = `
+      <div class="plate-top">
+        <div class="plate-name">${c.name}</div>
+        <div class="plate-target">${hasTarget ? 'target ' + c.target : 'open count'}</div>
+      </div>
+      <div class="plate-mid">
+        <div class="odometer">
+          ${digitReel(c.count, 'big', done, roll)}
+          ${hasTarget ? `<span class="odometer-sep">/</span><span class="odometer-target">${c.target}</span>` : ''}
+        </div>
+        <button class="click-btn${done ? ' done' : ''}" onclick="incrementCounter('${c.id}', 1)">+1</button>
+      </div>
+      ${hasTarget
+        ? `<div class="tally-rail">${tallyRail(c.count, c.target, done)}</div>`
+        : `<div class="open-caption">no target set</div>`}
+      <div class="plate-foot">
+        <button class="text-btn" onclick="incrementCounter('${c.id}', -1)">undo</button>
+        <button class="text-btn danger" onclick="deleteCounter('${c.id}')">delete</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  lastChangedId = null;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+
+function addCounter() {
+  const nameInput   = document.getElementById('counter-name-input');
+  const startInput  = document.getElementById('counter-start-input');
+  const targetInput = document.getElementById('counter-target-input');
+
+  const name = nameInput.value.trim();
+  if (!name) { showToast('Enter a counter name'); return; }
+
+  const start  = parseInt(startInput.value, 10);
+  const target = parseInt(targetInput.value, 10);
+
+  const counters = loadCounters();
+  const id = 'c_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  counters.push({
+    id,
+    name,
+    count:  isNaN(start) ? 0 : Math.max(0, start),
+    target: isNaN(target) ? null : Math.max(1, target),
+  });
+  saveCounters(counters);
+
+  nameInput.value   = '';
+  startInput.value  = '';
+  targetInput.value = '';
+
+  renderCounters();
+  showToast(`Added — ${name}`);
+}
+
+function incrementCounter(id, delta) {
+  const counters = loadCounters();
+  const c = counters.find(x => x.id === id);
+  if (!c) return;
+
+  const wasDone = !!(c.target && c.count >= c.target);
+  c.count = Math.max(0, c.count + delta);
+  saveCounters(counters);
+  lastChangedId = id;
+  renderCounters();
+
+  const nowDone = !!(c.target && c.count >= c.target);
+  if (nowDone && !wasDone) {
+    showToast(`\u2713 ${c.name} complete — ${c.count}/${c.target}`, true);
+  } else {
+    showToast(`${delta > 0 ? '+1' : '\u22121'} \u2192 ${c.name}  (${c.count}${c.target ? '/' + c.target : ''})`);
+  }
+}
+
+function deleteCounter(id) {
+  const counters = loadCounters();
+  const c = counters.find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`Delete counter "${c.name}"? This can't be undone.`)) return;
+  saveCounters(counters.filter(x => x.id !== id));
+  renderCounters();
+  showToast(`Deleted ${c.name}`);
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+
+let _toastTimer;
+function showToast(msg, isWin = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.remove('show', 'win');
+  void el.offsetWidth;
+  el.classList.add('show');
+  if (isWin) el.classList.add('win');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show', 'win'), isWin ? 3500 : 2200);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+renderCounters();
+</script>
+</body>
+</html>
