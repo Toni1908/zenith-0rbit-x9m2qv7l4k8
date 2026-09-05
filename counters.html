@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -329,9 +330,13 @@
   .plate-foot {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 16px;
+    justify-content: space-between;
     margin-top: 8px;
+  }
+  .foot-left, .foot-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
   .text-btn {
     font-family: var(--sans);
@@ -347,6 +352,66 @@
   }
   .text-btn:hover { color: #888; }
   .text-btn.danger:hover { color: var(--danger); }
+  .text-btn.active { color: var(--accent); }
+
+  /* ── NOTE INPUT ── */
+  .note-row { margin-top: 10px; }
+  .note-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #252525;
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 12.5px;
+    padding: 8px 10px;
+    outline: none;
+  }
+  .note-input::placeholder { color: #3a3a3a; }
+  .note-input:focus { border-color: #5b21b6; }
+
+  /* ── HISTORY ── */
+  .history-list {
+    margin-top: 10px;
+    max-height: 168px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .history-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 11.5px;
+    border-left: 2px solid #1c1c1c;
+    padding-left: 8px;
+  }
+  .history-item .h-date {
+    font-family: var(--mono);
+    color: #4a4a4a;
+    flex-shrink: 0;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .history-item .h-note {
+    color: #888;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .history-empty {
+    font-size: 11.5px;
+    color: #333;
+    font-style: italic;
+    margin-top: 10px;
+  }
+  .history-more {
+    font-size: 10px;
+    color: #333;
+    margin-top: 2px;
+    font-family: var(--mono);
+  }
 
   .divider {
     height: 1px;
@@ -441,16 +506,33 @@
 
 const COUNTERS_KEY = 'hub_counters';
 let lastChangedId = null;
+let noteOpenState = {};
+let historyOpenState = {};
 
 function loadCounters() {
   try {
     const c = localStorage.getItem(COUNTERS_KEY);
-    return c ? JSON.parse(c) : [];
+    const arr = c ? JSON.parse(c) : [];
+    arr.forEach(x => { if (!Array.isArray(x.log)) x.log = []; });
+    return arr;
   } catch { return []; }
 }
 
 function saveCounters(counters) {
   localStorage.setItem(COUNTERS_KEY, JSON.stringify(counters));
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatLogTime(iso) {
+  const d = new Date(iso);
+  const datePart = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const timePart = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  return datePart + ', ' + timePart;
 }
 
 // ─── DIGIT / TICK HELPERS ──────────────────────────────────────────────────
@@ -510,6 +592,8 @@ function renderCounters() {
     const hasTarget = !!(c.target && c.target > 0);
     const done      = hasTarget && c.count >= c.target;
     const roll      = c.id === lastChangedId;
+    const noteOpen  = !!noteOpenState[c.id];
+    const histOpen  = !!historyOpenState[c.id];
 
     const card = document.createElement('div');
     card.className = 'plate' + (done ? ' done' : '');
@@ -523,20 +607,51 @@ function renderCounters() {
           ${digitReel(c.count, 'big', done, roll)}
           ${hasTarget ? `<span class="odometer-sep">/</span><span class="odometer-target">${c.target}</span>` : ''}
         </div>
-        <button class="click-btn${done ? ' done' : ''}" onclick="incrementCounter('${c.id}', 1)">+1</button>
+        <button class="click-btn${done ? ' done' : ''}" onclick="logTap('${c.id}')">+1</button>
       </div>
       ${hasTarget
         ? `<div class="tally-rail">${tallyRail(c.count, c.target, done)}</div>`
         : `<div class="open-caption">no target set</div>`}
       <div class="plate-foot">
-        <button class="text-btn" onclick="incrementCounter('${c.id}', -1)">undo</button>
-        <button class="text-btn danger" onclick="deleteCounter('${c.id}')">delete</button>
+        <div class="foot-left">
+          <button class="text-btn${noteOpen ? ' active' : ''}" onclick="toggleNote('${c.id}')">note</button>
+          <button class="text-btn${histOpen ? ' active' : ''}" onclick="toggleHistory('${c.id}')">history</button>
+        </div>
+        <div class="foot-right">
+          <button class="text-btn" onclick="undoLast('${c.id}')">undo</button>
+          <button class="text-btn danger" onclick="deleteCounter('${c.id}')">delete</button>
+        </div>
       </div>
+      ${noteOpen ? `
+      <div class="note-row">
+        <input type="text" class="note-input" id="note-input-${c.id}" placeholder="note for next +1 (optional)" />
+      </div>` : ''}
+      ${histOpen ? `
+      <div class="history-list">
+        ${c.log.length
+          ? [...c.log].slice(-8).reverse().map(entry => `
+            <div class="history-item">
+              <span class="h-date">${formatLogTime(entry.ts)}</span>
+              <span class="h-note">${entry.delta > 0 ? '+1' : '\u22121'}${entry.note ? ' \u2014 ' + escapeHtml(entry.note) : ''}</span>
+            </div>`).join('')
+          : '<div class="history-empty">No taps logged yet</div>'}
+        ${c.log.length > 8 ? `<div class="history-more">+${c.log.length - 8} earlier</div>` : ''}
+      </div>` : ''}
     `;
     list.appendChild(card);
   });
 
   lastChangedId = null;
+
+  list.querySelectorAll('.note-input').forEach(inp => {
+    inp.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        const id = inp.id.replace('note-input-', '');
+        logTap(id);
+      }
+    });
+  });
 }
 
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
@@ -559,6 +674,7 @@ function addCounter() {
     name,
     count:  isNaN(start) ? 0 : Math.max(0, start),
     target: isNaN(target) ? null : Math.max(1, target),
+    log: [],
   });
   saveCounters(counters);
 
@@ -570,14 +686,21 @@ function addCounter() {
   showToast(`Added — ${name}`);
 }
 
-function incrementCounter(id, delta) {
+function logTap(id) {
   const counters = loadCounters();
   const c = counters.find(x => x.id === id);
   if (!c) return;
 
+  const noteInput = document.getElementById('note-input-' + id);
+  const note = noteInput ? noteInput.value.trim() : '';
+
   const wasDone = !!(c.target && c.count >= c.target);
-  c.count = Math.max(0, c.count + delta);
+  c.count = c.count + 1;
+  c.log.push({ ts: new Date().toISOString(), delta: 1, note: note || null });
+  if (c.log.length > 200) c.log = c.log.slice(-200);
   saveCounters(counters);
+
+  noteOpenState[id] = false;
   lastChangedId = id;
   renderCounters();
 
@@ -585,8 +708,39 @@ function incrementCounter(id, delta) {
   if (nowDone && !wasDone) {
     showToast(`\u2713 ${c.name} complete — ${c.count}/${c.target}`, true);
   } else {
-    showToast(`${delta > 0 ? '+1' : '\u22121'} \u2192 ${c.name}  (${c.count}${c.target ? '/' + c.target : ''})`);
+    showToast(note ? `+1 \u2192 ${c.name} — "${note}"` : `+1 \u2192 ${c.name}  (${c.count}${c.target ? '/' + c.target : ''})`);
   }
+}
+
+function undoLast(id) {
+  const counters = loadCounters();
+  const c = counters.find(x => x.id === id);
+  if (!c) return;
+
+  if (c.log.length) {
+    const last = c.log.pop();
+    c.count = Math.max(0, c.count - last.delta);
+  } else {
+    c.count = Math.max(0, c.count - 1);
+  }
+  saveCounters(counters);
+  lastChangedId = id;
+  renderCounters();
+  showToast(`Undone \u2192 ${c.name}  (${c.count}${c.target ? '/' + c.target : ''})`);
+}
+
+function toggleNote(id) {
+  noteOpenState[id] = !noteOpenState[id];
+  renderCounters();
+  if (noteOpenState[id]) {
+    const inp = document.getElementById('note-input-' + id);
+    if (inp) inp.focus();
+  }
+}
+
+function toggleHistory(id) {
+  historyOpenState[id] = !historyOpenState[id];
+  renderCounters();
 }
 
 function deleteCounter(id) {
