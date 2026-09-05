@@ -86,6 +86,21 @@
     color: var(--muted);
     margin-left: 2px;
   }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sound-toggle {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #555;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .sound-toggle:hover { color: #aaa; }
 
   /* ── SECTION LABEL ── */
   .section-label {
@@ -481,7 +496,10 @@
     <div class="header-eyebrow">◎ Counters</div>
     <div class="header-sub">click through anything you're counting toward</div>
   </div>
-  <div class="header-readout" id="header-readout"></div>
+  <div class="header-right">
+    <div class="header-readout" id="header-readout"></div>
+    <button class="sound-toggle" id="soundToggle" type="button" title="Toggle sound"></button>
+  </div>
 </div>
 
 <!-- NEW ENTRY -->
@@ -505,6 +523,92 @@
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
 
 const COUNTERS_KEY = 'hub_counters';
+
+// ─── SOUND ───────────────────────────────────────────────────────────────────
+
+const SOUND_KEY = 'hub_sound_muted';
+let soundMuted = localStorage.getItem(SOUND_KEY) === 'true';
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone({ freq = 440, freqEnd = null, duration = 0.12, type = 'sine', volume = 0.18, delay = 0 }) {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, t0 + duration);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(volume, t0 + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.02);
+  } catch (e) {}
+}
+
+function playClick() {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const t0 = ctx.currentTime;
+
+    // sharp noise tick — the mechanical "click"
+    const bufferSize = Math.floor(ctx.sampleRate * 0.03);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 2200;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.5, t0);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.03);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(t0);
+
+    // low thump — the mechanical body
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, t0);
+    osc.frequency.exponentialRampToValueAtTime(90, t0 + 0.05);
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.22, t0);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.06);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.08);
+  } catch (e) {}
+}
+
+function playComplete() {
+  playTone({ freq: 523.25, duration: 0.15, type: 'sine', volume: 0.16, delay: 0.05 });
+  playTone({ freq: 659.25, duration: 0.15, type: 'sine', volume: 0.16, delay: 0.14 });
+  playTone({ freq: 783.99, duration: 0.28, type: 'sine', volume: 0.18, delay: 0.23 });
+}
+
+function playUndo() {
+  playTone({ freq: 300, freqEnd: 150, duration: 0.12, type: 'triangle', volume: 0.13 });
+}
+
+function updateSoundIcon() {
+  const btn = document.getElementById('soundToggle');
+  if (btn) btn.textContent = soundMuted ? '\u{1F507}' : '\u{1F50A}';
+}
 let lastChangedId = null;
 let noteOpenState = {};
 let historyOpenState = {};
@@ -706,8 +810,11 @@ function logTap(id) {
 
   const nowDone = !!(c.target && c.count >= c.target);
   if (nowDone && !wasDone) {
+    playClick();
+    playComplete();
     showToast(`\u2713 ${c.name} complete — ${c.count}/${c.target}`, true);
   } else {
+    playClick();
     showToast(note ? `+1 \u2192 ${c.name} — "${note}"` : `+1 \u2192 ${c.name}  (${c.count}${c.target ? '/' + c.target : ''})`);
   }
 }
@@ -726,6 +833,7 @@ function undoLast(id) {
   saveCounters(counters);
   lastChangedId = id;
   renderCounters();
+  playUndo();
   showToast(`Undone \u2192 ${c.name}  (${c.count}${c.target ? '/' + c.target : ''})`);
 }
 
@@ -769,6 +877,14 @@ function showToast(msg, isWin = false) {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
+document.getElementById('soundToggle').addEventListener('click', () => {
+  soundMuted = !soundMuted;
+  localStorage.setItem(SOUND_KEY, String(soundMuted));
+  updateSoundIcon();
+  if (!soundMuted) playTone({ freq: 660, duration: 0.08, volume: 0.12 });
+});
+
+updateSoundIcon();
 renderCounters();
 </script>
 </body>
