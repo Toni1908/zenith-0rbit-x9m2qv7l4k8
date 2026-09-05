@@ -187,13 +187,15 @@
     background: #161616;
     color: #8a8a8a;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
   }
   .type-btn.active-credit { background: rgba(79,214,140,0.12); border-color: #4fd68c; color: #4fd68c; }
   .type-btn.active-debit { background: rgba(226,87,79,0.12); border-color: #e2574f; color: #e2574f; }
+  .type-btn.active-transfer { background: rgba(167,139,250,0.12); border-color: #a78bfa; color: #a78bfa; }
 
   .add-form input, .add-form select {
     width: 100%;
@@ -559,9 +561,10 @@
     <div class="type-toggle">
       <button class="type-btn active-credit" id="creditBtn" type="button">+ Credit</button>
       <button class="type-btn" id="debitBtn" type="button">− Debit</button>
+      <button class="type-btn" id="transferBtn" type="button">&#8644; Transfer</button>
     </div>
     <input type="number" id="amountInput" placeholder="Amount (e.g. 152.35)" inputmode="decimal" step="0.01">
-    <div class="select-row">
+    <div class="select-row" id="normalFields">
       <select id="accountInput"></select>
       <select id="categoryInput">
         <option value="Food">Food</option>
@@ -570,6 +573,10 @@
         <option value="Bills">Bills</option>
         <option value="Other expenses">Other expenses</option>
       </select>
+    </div>
+    <div class="select-row" id="transferFields" style="display:none;">
+      <select id="fromAccountInput"></select>
+      <select id="toAccountInput"></select>
     </div>
     <input type="text" id="reasonInput" placeholder="Reason (e.g. groceries, petrol)">
     <div class="chip-row" id="reasonChips"></div>
@@ -620,6 +627,7 @@ const ACCOUNTS_KEY = 'cache_accounts';
 const SETTINGS_KEY = 'hub_settings';
 const STREAK_KEY = 'hub_streak_days';
 const ACCOUNT_PALETTE = ['#4fb2e2', '#e2a34f', '#9b7fe0', '#4fd6b0', '#e2574f', '#7fe04f', '#e04f9b', '#6f8fe0'];
+const TRANSFER_COLOR = '#a78bfa';
 
 let CURRENCY = '₹';
 let CATEGORIES = ['Food', 'Fuel', 'Salary', 'Bills', 'Other expenses'];
@@ -683,10 +691,18 @@ function migrateEntries() {
 }
 
 function populateAccountOptions() {
-  const select = document.getElementById('accountInput');
-  const prev = select.value;
-  select.innerHTML = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
-  if (prev && accounts.some(a => a.id === prev)) select.value = prev;
+  ['accountInput', 'fromAccountInput', 'toAccountInput'].forEach(id => {
+    const select = document.getElementById(id);
+    if (!select) return;
+    const prev = select.value;
+    select.innerHTML = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+    if (prev && accounts.some(a => a.id === prev)) select.value = prev;
+  });
+  const fromSel = document.getElementById('fromAccountInput');
+  const toSel = document.getElementById('toAccountInput');
+  if (fromSel && toSel && accounts.length > 1 && fromSel.value === toSel.value) {
+    toSel.value = accounts.find(a => a.id !== fromSel.value).id;
+  }
 }
 
 function recordActivity() {
@@ -805,8 +821,7 @@ function buildCategoryRows(entries, maxVal) {
   return Object.entries(totals)
     .sort((a, b) => b[1] - a[1])
     .map(([cat, amt]) => {
-      const color = CATEGORY_COLORS[cat] || '#8a8a8a';
-      const pct = maxVal > 0 ? (amt / maxVal) * 100 : 0;
+      const color = cat === 'Transfer' ? TRANSFER_COLOR : (CATEGORY_COLORS[cat] || '#8a8a8a');
       return `
         <div class="chart-row">
           <div class="chart-dot" style="background:${color}"></div>
@@ -879,6 +894,7 @@ function debitTotalsForMonth(y, m, accountId = 'all') {
   const totals = {};
   entriesForMonth(y, m, accountId).forEach(e => {
     if (e.type !== 'debit') return;
+    if (accountId === 'all' && e.category === 'Transfer') return;
     const cat = e.category || 'Other expenses';
     totals[cat] = (totals[cat] || 0) + e.amount;
   });
@@ -957,6 +973,7 @@ function renderReasonChips() {
   const counts = {};
   allEntries.forEach(e => {
     if (e.type !== currentType) return;
+    if (e.category === 'Transfer') return;
     const r = (e.reason || '').trim();
     if (!r) return;
     counts[r] = (counts[r] || 0) + 1;
@@ -1065,9 +1082,10 @@ function render() {
   document.getElementById('monthTitle').textContent = monthNames[viewMonth] + ' ' + viewYear;
 
   const monthEntries = entriesForMonth(viewYear, viewMonth, accountFilter).sort((a,b) => a.date.localeCompare(b.date));
+  const displayEntries = accountFilter === 'all' ? monthEntries.filter(e => e.category !== 'Transfer') : monthEntries;
   const opening = openingBalanceFor(viewYear, viewMonth, accountFilter);
   let credit = 0, debit = 0;
-  for (const e of monthEntries) {
+  for (const e of displayEntries) {
     if (e.type === 'credit') credit += e.amount; else debit += e.amount;
   }
   const closing = opening + credit - debit;
@@ -1090,7 +1108,7 @@ function render() {
   document.getElementById('nextBtn').disabled = isCurrentOrFuture;
 
   renderAccountsRow();
-  renderChart(monthEntries);
+  renderChart(displayEntries);
   renderTrend(viewYear, viewMonth, accountFilter);
 
   const entriesLabel = document.getElementById('entriesLabel');
@@ -1108,17 +1126,21 @@ function render() {
     const d = new Date(e.date + 'T00:00:00');
     const dateLabel = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
     const cat = e.category || 'Other expenses';
-    const catColor = CATEGORY_COLORS[cat] || '#8a8a8a';
+    const catColor = cat === 'Transfer' ? TRANSFER_COLOR : (CATEGORY_COLORS[cat] || '#8a8a8a');
     const accId = e.account || (accounts[0] ? accounts[0].id : null);
     const acc = getAccount(accId);
+    const isTransfer = !!e.transferId;
+    const accountTag = isTransfer
+      ? `<span style="color:${acc.color};font-size:10px;font-weight:700;letter-spacing:0.3px;">${escapeHtml(acc.name)}</span>`
+      : `<select class="entry-account-select" data-id="${e.id}" style="color:${acc.color}">
+          ${accounts.map(a => `<option value="${a.id}" ${a.id === accId ? 'selected' : ''}>${escapeHtml(a.name)}</option>`).join('')}
+        </select>`;
     row.innerHTML = `
       <div class="entry-left">
         <div class="entry-reason">${escapeHtml(e.reason || cat)}</div>
         <div class="entry-meta">
           <span class="entry-cat-tag" style="background:${catColor}22;color:${catColor}">${cat}</span>
-          <select class="entry-account-select" data-id="${e.id}" style="color:${acc.color}">
-            ${accounts.map(a => `<option value="${a.id}" ${a.id === accId ? 'selected' : ''}>${escapeHtml(a.name)}</option>`).join('')}
-          </select>
+          ${accountTag}
           <span>${dateLabel}</span>
         </div>
       </div>
@@ -1132,7 +1154,13 @@ function render() {
   list.querySelectorAll('.del-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-id');
-      allEntries = allEntries.filter(e => e.id !== id);
+      const entry = allEntries.find(e => e.id === id);
+      if (entry && entry.transferId) {
+        if (!confirm('Delete this transfer? This removes both sides of the transfer.')) return;
+        allEntries = allEntries.filter(e => e.transferId !== entry.transferId);
+      } else {
+        allEntries = allEntries.filter(e => e.id !== id);
+      }
       saveEntries();
       render();
       renderReasonChips();
@@ -1161,16 +1189,41 @@ document.getElementById('creditBtn').addEventListener('click', () => {
   currentType = 'credit';
   document.getElementById('creditBtn').classList.add('active-credit');
   document.getElementById('debitBtn').classList.remove('active-debit');
+  document.getElementById('transferBtn').classList.remove('active-transfer');
+  document.getElementById('normalFields').style.display = 'flex';
+  document.getElementById('transferFields').style.display = 'none';
+  document.getElementById('reasonInput').placeholder = 'Reason (e.g. groceries, petrol)';
+  document.getElementById('reasonChips').style.display = 'flex';
+  document.getElementById('addBtn').textContent = 'Add entry';
   renderReasonChips();
 });
 document.getElementById('debitBtn').addEventListener('click', () => {
   currentType = 'debit';
   document.getElementById('debitBtn').classList.add('active-debit');
   document.getElementById('creditBtn').classList.remove('active-credit');
+  document.getElementById('transferBtn').classList.remove('active-transfer');
+  document.getElementById('normalFields').style.display = 'flex';
+  document.getElementById('transferFields').style.display = 'none';
+  document.getElementById('reasonInput').placeholder = 'Reason (e.g. groceries, petrol)';
+  document.getElementById('reasonChips').style.display = 'flex';
+  document.getElementById('addBtn').textContent = 'Add entry';
   renderReasonChips();
+});
+document.getElementById('transferBtn').addEventListener('click', () => {
+  currentType = 'transfer';
+  document.getElementById('transferBtn').classList.add('active-transfer');
+  document.getElementById('creditBtn').classList.remove('active-credit');
+  document.getElementById('debitBtn').classList.remove('active-debit');
+  document.getElementById('normalFields').style.display = 'none';
+  document.getElementById('transferFields').style.display = 'flex';
+  document.getElementById('reasonInput').placeholder = 'Note (optional)';
+  document.getElementById('reasonChips').style.display = 'none';
+  document.getElementById('addBtn').textContent = 'Transfer';
 });
 
 document.getElementById('addBtn').addEventListener('click', () => {
+  if (currentType === 'transfer') { handleTransferSubmit(); return; }
+
   const amountInput = document.getElementById('amountInput');
   const reasonInput = document.getElementById('reasonInput');
   const dateInput = document.getElementById('dateInput');
@@ -1202,6 +1255,50 @@ document.getElementById('addBtn').addEventListener('click', () => {
   renderReasonChips();
   showToast((currentType === 'credit' ? '+' : '−') + fmtMoney(amount).replace(/^[+−]?/, '') + ' logged \u00b7 ' + getAccount(account).name);
 });
+
+function handleTransferSubmit() {
+  const amountInput = document.getElementById('amountInput');
+  const dateInput = document.getElementById('dateInput');
+  const reasonInput = document.getElementById('reasonInput');
+  const fromSel = document.getElementById('fromAccountInput');
+  const toSel = document.getElementById('toAccountInput');
+
+  const amount = Math.round(parseFloat(amountInput.value) * 100) / 100;
+  if (!amount || amount <= 0) { setStatus('Enter a valid amount'); return; }
+  const fromId = fromSel.value, toId = toSel.value;
+  if (!fromId || !toId) { setStatus('Select both accounts'); return; }
+  if (fromId === toId) { setStatus('Choose two different accounts'); return; }
+
+  const date = dateInput.value || todayStr();
+  const note = reasonInput.value.trim();
+  const fromName = getAccount(fromId).name;
+  const toName = getAccount(toId).name;
+  const transferId = 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+  const outEntry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    amount, type: 'debit', date, category: 'Transfer',
+    reason: note || `Transfer to ${toName}`,
+    account: fromId, transferId
+  };
+  const inEntry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6) + 'i',
+    amount, type: 'credit', date, category: 'Transfer',
+    reason: note || `Transfer from ${fromName}`,
+    account: toId, transferId
+  };
+  allEntries.push(outEntry, inEntry);
+  saveEntries();
+
+  amountInput.value = '';
+  reasonInput.value = '';
+
+  const [y, m] = date.split('-').map(Number);
+  viewYear = y; viewMonth = m - 1;
+
+  render();
+  showToast(fmtMoney(amount) + ' moved: ' + fromName + ' \u2192 ' + toName);
+}
 
 document.getElementById('prevBtn').addEventListener('click', () => {
   viewMonth--;
