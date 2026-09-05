@@ -38,6 +38,7 @@
   .brand {
     text-align: center;
     margin-bottom: 22px;
+    position: relative;
   }
   .brand-name {
     font-size: 22px;
@@ -51,6 +52,19 @@
     letter-spacing: 1px;
     margin-top: 2px;
   }
+  .sound-toggle {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #555;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .sound-toggle:hover { color: #aaa; }
 
   .month-nav {
     display: flex;
@@ -506,6 +520,7 @@
   <div class="brand">
     <div class="brand-name">Cache</div>
     <div class="brand-tag">monthly ledger</div>
+    <button class="sound-toggle" id="soundToggle" type="button" title="Toggle sound"></button>
   </div>
 
   <div class="month-nav">
@@ -628,6 +643,88 @@ const SETTINGS_KEY = 'hub_settings';
 const STREAK_KEY = 'hub_streak_days';
 const ACCOUNT_PALETTE = ['#4fb2e2', '#e2a34f', '#9b7fe0', '#4fd6b0', '#e2574f', '#7fe04f', '#e04f9b', '#6f8fe0'];
 const TRANSFER_COLOR = '#a78bfa';
+
+// ─── SOUND ───────────────────────────────────────────────────────────────────
+
+const SOUND_KEY = 'hub_sound_muted';
+let soundMuted = localStorage.getItem(SOUND_KEY) === 'true';
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone({ freq = 440, freqEnd = null, duration = 0.12, type = 'sine', volume = 0.18, delay = 0 }) {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, t0 + duration);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(volume, t0 + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.02);
+  } catch (e) {}
+}
+
+function playCredit() {
+  playTone({ freq: 1046.5, duration: 0.10, type: 'sine', volume: 0.14, delay: 0 });
+  playTone({ freq: 1318.5, duration: 0.18, type: 'sine', volume: 0.17, delay: 0.05 });
+}
+
+function playDebit() {
+  playTone({ freq: 220, freqEnd: 140, duration: 0.18, type: 'triangle', volume: 0.17 });
+}
+
+function playTransfer() {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const t0 = ctx.currentTime;
+    const bufferSize = Math.floor(ctx.sampleRate * 0.25);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 1.1;
+    filter.frequency.setValueAtTime(400, t0);
+    filter.frequency.exponentialRampToValueAtTime(2200, t0 + 0.22);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(0.20, t0 + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.25);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start(t0);
+  } catch (e) {}
+}
+
+function updateSoundIcon() {
+  const btn = document.getElementById('soundToggle');
+  if (btn) btn.textContent = soundMuted ? '\u{1F507}' : '\u{1F50A}';
+}
+
+document.getElementById('soundToggle').addEventListener('click', () => {
+  soundMuted = !soundMuted;
+  localStorage.setItem(SOUND_KEY, String(soundMuted));
+  updateSoundIcon();
+  if (!soundMuted) playTone({ freq: 660, duration: 0.08, volume: 0.12 });
+});
+
+updateSoundIcon();
 
 let CURRENCY = '₹';
 let CATEGORIES = ['Food', 'Fuel', 'Salary', 'Bills', 'Other expenses'];
@@ -1244,6 +1341,7 @@ document.getElementById('addBtn').addEventListener('click', () => {
   };
   allEntries.push(entry);
   saveEntries();
+  currentType === 'credit' ? playCredit() : playDebit();
 
   amountInput.value = '';
   reasonInput.value = '';
@@ -1289,6 +1387,7 @@ function handleTransferSubmit() {
   };
   allEntries.push(outEntry, inEntry);
   saveEntries();
+  playTransfer();
 
   amountInput.value = '';
   reasonInput.value = '';
