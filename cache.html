@@ -919,6 +919,7 @@ function buildCategoryRows(entries, maxVal) {
     .sort((a, b) => b[1] - a[1])
     .map(([cat, amt]) => {
       const color = cat === 'Transfer' ? TRANSFER_COLOR : (CATEGORY_COLORS[cat] || '#8a8a8a');
+      const pct = maxVal > 0 ? (amt / maxVal) * 100 : 0;
       return `
         <div class="chart-row">
           <div class="chart-dot" style="background:${color}"></div>
