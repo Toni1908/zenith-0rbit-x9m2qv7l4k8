@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -76,6 +77,75 @@
     margin: 22px 0 10px;
   }
   .section-label:first-of-type { margin-top: 0; }
+
+  /* ===== top-three big cards with progress ===== */
+  .big-list { margin-bottom: 22px; }
+  .big-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .big-card:last-child { margin-bottom: 0; }
+  .big-card:hover { border-color: #333; background: #141414; }
+  .big-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .big-card-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .big-card-body { flex: 1; min-width: 0; }
+  .big-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .big-card-sub {
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+  }
+  .big-card-value {
+    font-size: 17px;
+    font-weight: 800;
+    text-align: right;
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+  .big-card-bar {
+    width: 100%;
+    height: 5px;
+    background: #1c1c1c;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .big-card-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  .big-card-bar-label {
+    font-size: 10.5px;
+    color: #666;
+  }
 
   .card {
     display: flex;
@@ -222,11 +292,11 @@
   ::-webkit-scrollbar-thumb:hover { background: #333; }
   * { scrollbar-width: thin; scrollbar-color: #262626 transparent; }
 
-  button, a.card, .card {
+  button, a.card, .card, a.big-card {
     transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
   }
   button:active { transform: scale(0.96); }
-  a.card:active, .card:active { transform: scale(0.98); }
+  a.card:active, .card:active, a.big-card:active { transform: scale(0.96); }
 
   .toast-wrap {
     position: fixed;
@@ -272,41 +342,46 @@
 
   <div class="section-label">Systems</div>
 
-  <a class="card" href="cache.html">
-    <div class="card-icon icon-cache">₹</div>
-    <div class="card-body">
-      <div class="card-title-row">
-        <div class="card-title">Cache</div>
-        <div class="card-snippet" id="cacheSnippet"></div>
+  <div class="big-list">
+    <a class="big-card" href="cache.html">
+      <div class="big-card-top">
+        <div class="big-card-icon icon-cache">₹</div>
+        <div class="big-card-body">
+          <div class="big-card-title">Cache</div>
+          <div class="big-card-sub" id="cacheSub">This month's balance</div>
+        </div>
+        <div class="big-card-value" id="cacheValue"></div>
       </div>
-      <div class="card-sub">This month's closing balance</div>
-    </div>
-    <div class="card-arrow">&#8250;</div>
-  </a>
+      <div class="big-card-bar" id="cacheBar" style="display:none;"><div class="big-card-bar-fill" id="cacheBarFill"></div></div>
+      <div class="big-card-bar-label" id="cacheBarLabel"></div>
+    </a>
 
-  <a class="card" href="counters.html">
-    <div class="card-icon icon-counters">◎</div>
-    <div class="card-body">
-      <div class="card-title-row">
-        <div class="card-title">Counters</div>
-        <div class="card-snippet" id="countersSnippet"></div>
+    <a class="big-card" href="counters.html">
+      <div class="big-card-top">
+        <div class="big-card-icon icon-counters">◎</div>
+        <div class="big-card-body">
+          <div class="big-card-title">Counters</div>
+          <div class="big-card-sub" id="countersSub">Track anything toward a goal</div>
+        </div>
+        <div class="big-card-value" id="countersValue"></div>
       </div>
-      <div class="card-sub">Track anything toward a goal — visits, streaks, tallies</div>
-    </div>
-    <div class="card-arrow">&#8250;</div>
-  </a>
+      <div class="big-card-bar" id="countersBar" style="display:none;"><div class="big-card-bar-fill" id="countersBarFill"></div></div>
+      <div class="big-card-bar-label" id="countersBarLabel"></div>
+    </a>
 
-  <a class="card" href="backlog.html">
-    <div class="card-icon icon-backlog">B</div>
-    <div class="card-body">
-      <div class="card-title-row">
-        <div class="card-title">Backlog</div>
-        <div class="card-snippet" id="backlogSnippet"></div>
+    <a class="big-card" href="backlog.html">
+      <div class="big-card-top">
+        <div class="big-card-icon icon-backlog">B</div>
+        <div class="big-card-body">
+          <div class="big-card-title">Backlog</div>
+          <div class="big-card-sub" id="backlogSub">Game queue progress</div>
+        </div>
+        <div class="big-card-value" id="backlogValue"></div>
       </div>
-      <div class="card-sub">Game queue and completion tracker</div>
-    </div>
-    <div class="card-arrow">&#8250;</div>
-  </a>
+      <div class="big-card-bar" id="backlogBar" style="display:none;"><div class="big-card-bar-fill" id="backlogBarFill"></div></div>
+      <div class="big-card-bar-label" id="backlogBarLabel"></div>
+    </a>
+  </div>
 
   <details class="collapse" id="moreSection" data-collapse-key="hub_more_open">
     <summary>More <span class="chev">&#8250;</span></summary>
@@ -393,8 +468,11 @@ function todayStr() {
   return new Date().toISOString().slice(0,10);
 }
 
-function renderCacheSnippet() {
-  const el = document.getElementById('cacheSnippet');
+function renderCacheCard() {
+  const valueEl = document.getElementById('cacheValue');
+  const bar = document.getElementById('cacheBar');
+  const fill = document.getElementById('cacheBarFill');
+  const label = document.getElementById('cacheBarLabel');
   try {
     const entries = JSON.parse(localStorage.getItem('cache_entries') || '[]');
     let settings = { currency: '₹' };
@@ -404,22 +482,45 @@ function renderCacheSnippet() {
     } catch (e) {}
     const currency = settings.currency || '₹';
 
-    if (!entries.length) { el.textContent = ''; return; }
+    if (!entries.length) { valueEl.textContent = ''; bar.style.display = 'none'; label.textContent = ''; return; }
 
     const now = new Date();
     const cutoff = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-    let balance = 0;
+    let balance = 0, income = 0, expense = 0;
     entries.forEach(e => {
       if (e.date.slice(0,7) <= cutoff) {
         balance += e.type === 'credit' ? e.amount : -e.amount;
       }
+      if (e.date.slice(0,7) === cutoff && e.category !== 'Transfer') {
+        if (e.type === 'credit') income += e.amount; else expense += e.amount;
+      }
     });
     const rounded = Math.abs(Math.round(balance * 100) / 100);
     const sign = balance < 0 ? '−' : '';
-    el.textContent = sign + currency + rounded.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    el.style.color = balance < 0 ? '#e2574f' : '#4ade80';
+    valueEl.textContent = sign + currency + rounded.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    valueEl.style.color = balance < 0 ? '#e2574f' : '#4ade80';
+
+    if (income > 0) {
+      const pct = Math.round((expense / income) * 100);
+      bar.style.display = 'block';
+      fill.style.width = Math.min(100, pct) + '%';
+      if (pct < 100) {
+        fill.style.background = '#4ade80';
+        label.textContent = pct + '% of this month\'s income spent';
+      } else if (balance >= 0) {
+        fill.style.background = '#e0b84f';
+        label.textContent = pct + '% of this month\'s income — covered by savings';
+      } else {
+        fill.style.background = '#e2574f';
+        label.textContent = pct + '% of this month\'s income — balance is negative';
+      }
+    } else {
+      bar.style.display = 'none';
+      label.textContent = '';
+    }
   } catch (e) {
-    el.textContent = '';
+    valueEl.textContent = '';
+    bar.style.display = 'none';
   }
 }
 
@@ -440,41 +541,81 @@ function renderSplitSnippet() {
   }
 }
 
-function renderBacklogSnippet() {
-  const el = document.getElementById('backlogSnippet');
+function renderBacklogCard() {
+  const valueEl = document.getElementById('backlogValue');
+  const bar = document.getElementById('backlogBar');
+  const fill = document.getElementById('backlogBarFill');
+  const label = document.getElementById('backlogBarLabel');
   try {
-    const state = JSON.parse(localStorage.getItem('backlog_progress') || '{}');
-    const keys = Object.keys(state).filter(k => k.startsWith('play_'));
-    const doneKeys = keys.filter(k => state[k]);
-    if (!keys.length) { el.textContent = ''; return; }
-    el.textContent = doneKeys.length + '/' + keys.length;
-    el.style.color = '#60a5fa';
+    const store = JSON.parse(localStorage.getItem('backlog_store') || 'null');
+    if (!store || !store.tiers) { valueEl.textContent = ''; bar.style.display = 'none'; label.textContent = ''; return; }
+    let total = 0, done = 0;
+    store.tiers.forEach(t => {
+      (t.games || []).forEach(g => {
+        total++;
+        if (g.done) done++;
+      });
+    });
+    if (!total) { valueEl.textContent = ''; bar.style.display = 'none'; label.textContent = ''; return; }
+    const pct = Math.round((done / total) * 100);
+    valueEl.textContent = done + '/' + total;
+    valueEl.style.color = '#60a5fa';
+    bar.style.display = 'block';
+    fill.style.width = pct + '%';
+    fill.style.background = '#60a5fa';
+    label.textContent = pct + '% cleared';
   } catch (e) {
-    el.textContent = '';
+    valueEl.textContent = '';
+    bar.style.display = 'none';
   }
 }
 
-function renderCountersSnippet() {
-  const el = document.getElementById('countersSnippet');
+function renderCountersCard() {
+  const valueEl = document.getElementById('countersValue');
+  const subEl = document.getElementById('countersSub');
+  const bar = document.getElementById('countersBar');
+  const fill = document.getElementById('countersBarFill');
+  const label = document.getElementById('countersBarLabel');
   try {
     const counters = JSON.parse(localStorage.getItem('hub_counters') || '[]');
-    if (!counters.length) { el.textContent = ''; return; }
+    if (!counters.length) {
+      valueEl.textContent = '';
+      bar.style.display = 'none';
+      label.textContent = '';
+      return;
+    }
     if (counters.length === 1) {
       const c = counters[0];
-      el.textContent = c.target ? (c.count + '/' + c.target) : String(c.count);
+      subEl.textContent = c.name;
+      if (c.target) {
+        const pct = Math.min(100, Math.round((c.count / c.target) * 100));
+        valueEl.textContent = c.count + '/' + c.target;
+        bar.style.display = 'block';
+        fill.style.width = pct + '%';
+        fill.style.background = '#a78bfa';
+        label.textContent = pct + '% to goal';
+      } else {
+        valueEl.textContent = String(c.count);
+        bar.style.display = 'none';
+        label.textContent = '';
+      }
     } else {
-      el.textContent = counters.length + ' active';
+      subEl.textContent = 'Track anything toward a goal';
+      valueEl.textContent = counters.length + ' active';
+      bar.style.display = 'none';
+      label.textContent = '';
     }
-    el.style.color = '#a78bfa';
+    valueEl.style.color = '#a78bfa';
   } catch (e) {
-    el.textContent = '';
+    valueEl.textContent = '';
+    bar.style.display = 'none';
   }
 }
 
-renderCacheSnippet();
+renderCacheCard();
 renderSplitSnippet();
-renderBacklogSnippet();
-renderCountersSnippet();
+renderBacklogCard();
+renderCountersCard();
 
 function restoreCollapseState() {
   document.querySelectorAll('.collapse[data-collapse-key]').forEach(el => {
