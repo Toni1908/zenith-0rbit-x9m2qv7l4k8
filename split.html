@@ -40,9 +40,25 @@
     text-transform: uppercase;
     color: #555;
     text-decoration: none;
-    margin-bottom: 18px;
   }
   .back-link:hover { color: var(--text); }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .sound-toggle {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #555;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .sound-toggle:hover { color: #aaa; }
 
   .header {
     text-align: center;
@@ -78,7 +94,27 @@
     border-radius: 12px;
     padding: 18px 20px;
     margin-bottom: 26px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
+  .today-card.complete {
+    border-color: #4ade80;
+    box-shadow: 0 0 0 1px rgba(74,222,128,0.2), 0 0 22px rgba(74,222,128,0.12);
+  }
+  .today-bar {
+    width: 100%;
+    height: 5px;
+    background: #1c1c1c;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .today-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+  .today-card.complete .today-bar-fill { background: #4ade80; }
   .today-day { font-size: 12px; color: #888; letter-spacing: 0.5px; }
   .today-workout { font-size: 22px; font-weight: 700; margin-top: 4px; }
   .today-sets { font-size: 11px; color: #666; margin-top: 4px; }
@@ -292,13 +328,21 @@
     padding: 6px 12px 6px 12px;
     cursor: pointer;
     user-select: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
   .set-counter-label { font-size: 10px; color: #777; letter-spacing: 0.5px; }
-  .set-counter-value { font-size: 13px; font-weight: 800; color: var(--text); min-width: 30px; text-align: center; }
+  .set-counter-value { font-size: 13px; font-weight: 800; color: var(--text); min-width: 30px; text-align: center; transition: color 0.2s ease; }
   .set-counter.complete { border-color: #4ade80; }
   .set-counter.complete .set-counter-value { color: #4ade80; }
-  .set-counter-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; flex-shrink: 0; }
+  .set-counter-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; flex-shrink: 0; transition: background 0.2s ease; }
   .set-counter.complete .set-counter-dot { background: #4ade80; }
+
+  @keyframes counterPulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2); }
+    70% { box-shadow: 0 0 0 9px rgba(255,255,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+  }
+  .set-counter.pulse { animation: counterPulse 0.45s ease-out; }
 
   .add-exercise-btn {
     width: 100%;
@@ -495,17 +539,21 @@
 </head>
 <body>
 <div class="wrap">
-  <a class="back-link" href="index.html">&#8592; Hub</a>
+  <div class="top-row">
+    <a class="back-link" href="index.html">&#8592; Hub</a>
+    <button class="sound-toggle" id="soundToggle" type="button" title="Toggle sound"></button>
+  </div>
 
   <div class="header">
     <div class="header-eyebrow">Systems</div>
     <div class="header-name">Split</div>
   </div>
 
-  <div class="today-card">
+  <div class="today-card" id="todayCard">
     <div class="today-day" id="todayDay">—</div>
     <div class="today-workout" id="todayWorkout">—</div>
     <div class="today-sets" id="todaySets"></div>
+    <div class="today-bar" id="todayBar" style="display:none;"><div class="today-bar-fill" id="todayBarFill"></div></div>
     <button class="today-btn" id="todayBtn">Mark today done</button>
   </div>
 
@@ -557,6 +605,87 @@ const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'
 const PROGRAM_KEY = 'workout_program';
 const SESSION_KEY = 'workout_session';
 const LOG_KEY = 'workout_log';
+const SOUND_KEY = 'hub_sound_muted';
+
+let soundMuted = localStorage.getItem(SOUND_KEY) === 'true';
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone({ freq = 440, freqEnd = null, duration = 0.12, type = 'sine', volume = 0.18, delay = 0 }) {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, t0 + duration);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(volume, t0 + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.02);
+  } catch (e) {}
+}
+
+function playClick() {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const t0 = ctx.currentTime;
+    const bufferSize = Math.floor(ctx.sampleRate * 0.03);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 2200;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.5, t0);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.03);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(t0);
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, t0);
+    osc.frequency.exponentialRampToValueAtTime(90, t0 + 0.05);
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.22, t0);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.06);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.08);
+  } catch (e) {}
+}
+
+function playComplete() {
+  playTone({ freq: 523.25, duration: 0.15, type: 'sine', volume: 0.16, delay: 0 });
+  playTone({ freq: 659.25, duration: 0.15, type: 'sine', volume: 0.16, delay: 0.09 });
+  playTone({ freq: 783.99, duration: 0.28, type: 'sine', volume: 0.18, delay: 0.18 });
+}
+
+function playUndo() {
+  playTone({ freq: 300, freqEnd: 150, duration: 0.12, type: 'triangle', volume: 0.13 });
+}
+
+function updateSoundIcon() {
+  const btn = document.getElementById('soundToggle');
+  if (btn) btn.textContent = soundMuted ? '\u{1F507}' : '\u{1F50A}';
+}
 
 let program = {};
 let session = {};
@@ -664,6 +793,16 @@ function tagColor(tag) {
   return '#60a5fa';
 }
 
+function isDayFullyLogged(dayData, todaySession) {
+  if (!dayData || !dayData.exercises.length) return false;
+  let total = 0, done = 0;
+  dayData.exercises.forEach(ex => {
+    total += (ex.target || 0);
+    done += Math.min(todaySession[ex.id] || 0, ex.target || 0);
+  });
+  return total > 0 && done >= total;
+}
+
 function renderToday() {
   const now = new Date();
   const dayIdx = now.getDay();
@@ -675,6 +814,9 @@ function renderToday() {
   document.getElementById('todayWorkout').textContent = workoutName || 'Rest day';
 
   const setsEl = document.getElementById('todaySets');
+  const todayCard = document.getElementById('todayCard');
+  const barWrap = document.getElementById('todayBar');
+  const barFill = document.getElementById('todayBarFill');
   if (dayData && dayData.exercises.length) {
     const todaySession = getTodaySession();
     let done = 0, total = 0;
@@ -683,8 +825,18 @@ function renderToday() {
       done += Math.min(todaySession[ex.id] || 0, ex.target || 0);
     });
     setsEl.textContent = total > 0 ? `${done}/${total} sets logged` : '';
+    if (total > 0) {
+      barWrap.style.display = 'block';
+      barFill.style.width = Math.round((done / total) * 100) + '%';
+      todayCard.classList.toggle('complete', done >= total);
+    } else {
+      barWrap.style.display = 'none';
+      todayCard.classList.remove('complete');
+    }
   } else {
     setsEl.textContent = '';
+    barWrap.style.display = 'none';
+    todayCard.classList.remove('complete');
   }
 
   const entry = log[dateKey];
@@ -697,6 +849,7 @@ function renderToday() {
     const nowDone = !(log[dateKey] && log[dateKey].done);
     log[dateKey] = { done: nowDone, workout: workoutName };
     saveLog();
+    if (nowDone) { playClick(); playComplete(); } else { playUndo(); }
     renderToday();
     renderHistory();
     renderYear();
@@ -857,14 +1010,27 @@ function renderExerciseList() {
     });
 
     if (isToday) {
-      card.querySelector('.set-counter').addEventListener('click', () => {
+      const counterEl = card.querySelector('.set-counter');
+      counterEl.addEventListener('click', () => {
         const s = getTodaySession();
         const t = ex.target || 0;
         const cur = s[ex.id] || 0;
+        const wasComplete = isDayFullyLogged(dayData, s);
         s[ex.id] = t > 0 ? (cur + 1) % (t + 1) : 0;
         saveSession();
-        renderExerciseList();
-        renderToday();
+        playClick();
+        const justCompletedExercise = t > 0 && s[ex.id] === t;
+        if (justCompletedExercise) playComplete();
+        counterEl.classList.add('pulse');
+        const nowComplete = isDayFullyLogged(dayData, s);
+        if (nowComplete && !wasComplete) {
+          setTimeout(() => playComplete(), 280);
+          showToast('Workout complete 🔥');
+        }
+        setTimeout(() => {
+          renderExerciseList();
+          renderToday();
+        }, 160);
       });
     }
 
@@ -1074,6 +1240,14 @@ document.getElementById('nextYearBtn').addEventListener('click', () => {
   loadProgram();
   loadSession();
   selectedDay = new Date().getDay();
+
+  updateSoundIcon();
+  document.getElementById('soundToggle').addEventListener('click', () => {
+    soundMuted = !soundMuted;
+    localStorage.setItem(SOUND_KEY, String(soundMuted));
+    updateSoundIcon();
+    if (!soundMuted) playTone({ freq: 660, duration: 0.08, volume: 0.12 });
+  });
 
   document.getElementById('programNotes').value = program.notes || '';
   document.getElementById('programNotes').addEventListener('input', (e) => {
