@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,6 +81,7 @@
   }
   .today-day { font-size: 12px; color: #888; letter-spacing: 0.5px; }
   .today-workout { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .today-sets { font-size: 11px; color: #666; margin-top: 4px; }
   .today-btn {
     width: 100%;
     margin-top: 14px;
@@ -102,39 +104,216 @@
   .today-btn:hover { border-color: #333; }
   .today-btn.done:hover { border-color: #4ade80; }
 
-  .plan-list { margin-bottom: 24px; }
-  .plan-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  /* ===== Program ===== */
+  .program-notes {
+    width: 100%;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-  }
-  .plan-row.is-today { border-color: #333; }
-  .plan-day {
+    border-radius: 10px;
+    color: #aaa;
+    font-family: inherit;
     font-size: 12px;
+    line-height: 1.5;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    resize: vertical;
+    min-height: 54px;
+  }
+  .program-notes:focus { outline: none; border-color: #444; color: var(--text); }
+  .program-notes::placeholder { color: #444; }
+
+  .day-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    padding-bottom: 2px;
+  }
+  .day-tab {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: #555;
+    font-family: inherit;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    color: #777;
-    width: 38px;
-    flex-shrink: 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
   }
-  .plan-row.is-today .plan-day { color: var(--accent); }
-  .plan-input {
+  .day-tab.has-data { color: #ccc; }
+  .day-tab.is-today { border-color: var(--accent); }
+  .day-tab.active { background: #1a1a1a; border-color: #444; color: #fff; }
+
+  .day-label-row { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
+  .day-label-input {
     flex: 1;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 9px 12px;
+  }
+  .day-label-input:focus { outline: none; border-color: #444; }
+  .day-label-input::placeholder { color: #555; }
+  .day-remove-btn {
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: #666;
+    font-family: inherit;
+    font-size: 10.5px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .day-remove-btn:hover { border-color: #e2574f; color: #e2574f; }
+
+  .rest-note {
+    text-align: center;
+    color: #555;
+    font-size: 12px;
+    padding: 20px 0 26px;
+  }
+
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .exercise-top {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .exercise-name-input {
+    flex: 1;
+    min-width: 0;
     background: #0d0d0d;
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
     font-family: inherit;
-    font-size: 13px;
-    padding: 7px 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 8px 10px;
   }
-  .plan-input:focus { outline: none; border-color: #444; }
-  .plan-input::placeholder { color: #555; }
+  .exercise-name-input:focus { outline: none; border-color: #444; }
+  .exercise-name-input::placeholder { color: #555; }
+  .exercise-tag-select {
+    flex-shrink: 0;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 11px;
+    padding: 8px 4px;
+  }
+  .exercise-remove-btn {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .exercise-remove-btn:hover { color: #e2574f; }
+
+  .exercise-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .exercise-field { flex: 1; min-width: 0; }
+  .exercise-field-label {
+    font-size: 9px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .exercise-field-input {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12.5px;
+    padding: 7px 9px;
+  }
+  .exercise-field-input:focus { outline: none; border-color: #444; }
+  .exercise-field-input::placeholder { color: #555; }
+
+  .exercise-notes {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: #999;
+    font-family: inherit;
+    font-size: 11.5px;
+    line-height: 1.5;
+    padding: 8px 10px;
+    resize: vertical;
+    min-height: 40px;
+    margin-bottom: 10px;
+  }
+  .exercise-notes:focus { outline: none; border-color: #444; color: var(--text); }
+  .exercise-notes::placeholder { color: #444; }
+
+  .exercise-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .exercise-target-row { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #666; }
+  .exercise-target-input {
+    width: 34px;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 11px;
+    text-align: center;
+    padding: 4px 2px;
+  }
+  .set-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px 6px 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .set-counter-label { font-size: 10px; color: #777; letter-spacing: 0.5px; }
+  .set-counter-value { font-size: 13px; font-weight: 800; color: var(--text); min-width: 30px; text-align: center; }
+  .set-counter.complete { border-color: #4ade80; }
+  .set-counter.complete .set-counter-value { color: #4ade80; }
+  .set-counter-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; flex-shrink: 0; }
+  .set-counter.complete .set-counter-dot { background: #4ade80; }
+
+  .add-exercise-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: #666;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 26px;
+  }
+  .add-exercise-btn:hover { border-color: #444; color: var(--text); }
 
   .history-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
   .history-row {
@@ -326,11 +505,14 @@
   <div class="today-card">
     <div class="today-day" id="todayDay">—</div>
     <div class="today-workout" id="todayWorkout">—</div>
+    <div class="today-sets" id="todaySets"></div>
     <button class="today-btn" id="todayBtn">Mark today done</button>
   </div>
 
-  <div class="section-label">Weekly plan — tap to edit</div>
-  <div class="plan-list" id="planList"></div>
+  <div class="section-label">Program — edit anytime</div>
+  <textarea class="program-notes" id="programNotes" placeholder="Program notes — intensity, RIR guidelines, etc."></textarea>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div id="dayEditor"></div>
 
   <div class="section-label">Last 14 days</div>
   <div class="history-list" id="historyList"></div>
@@ -372,12 +554,60 @@ function showToast(msg, isError) {
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const PLAN_KEY = 'workout_plan';
+const PROGRAM_KEY = 'workout_program';
+const SESSION_KEY = 'workout_session';
 const LOG_KEY = 'workout_log';
 
-let plan = {};
+let program = {};
+let session = {};
 let log = {};
 let viewYear = new Date().getFullYear();
+let selectedDay = new Date().getDay();
+
+const DEFAULT_PROGRAM = {
+  notes: "2-Week Foundation Program — Week 1: You 3–4 RIR / Her 4+ RIR, mostly 2 sets, no failure. Week 2: You 2–3 RIR / Her 3–4 RIR. Goal is learning, not exhausting yourselves.",
+  days: {
+    2: { label: 'Chest + Triceps + Core', exercises: [
+      { id: 'tue1', name: 'Machine Chest Press', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: 'Seat height, hand position, shoulder blades against the pad, smooth press, controlled return.', target: 2 },
+      { id: 'tue2', name: 'Incline Dumbbell Press', tag: 'Main', you: '2 × 8–12', her: '1–2 × 10–15', notes: 'Moderate incline, controlled lowering, elbows slightly tucked, no bouncing.', target: 2 },
+      { id: 'tue3', name: 'Cable Fly', tag: 'Accessory', you: '2 × 10–15', her: '1–2 × 12–15', notes: 'Slight elbow bend, chest doing the work, controlled stretch.', target: 2 },
+      { id: 'tue4', name: 'Cable Triceps Pushdown', tag: 'Accessory', you: '2 × 10–15', her: '2 × 10–15', notes: "Elbows relatively fixed, don't swing, controlled return.", target: 2 },
+      { id: 'tue5', name: 'Cable Crunch', tag: 'Core', you: '2 × 10–15', her: '1–2 × 10–15', notes: 'Curl your torso rather than simply pulling the rope down.', target: 2 }
+    ]},
+    3: { label: 'Back + Biceps', exercises: [
+      { id: 'wed1', name: 'Lat Pulldown', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: "Chest slightly up, pull toward upper chest, don't yank, controlled return.", target: 2 },
+      { id: 'wed2', name: 'Seated Cable Row', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: "Neutral spine, pull toward lower chest/upper stomach, don't excessively lean backward.", target: 2 },
+      { id: 'wed3', name: 'Rear Delt Fly', tag: 'Accessory', you: '2 × 12–15', her: '1–2 × 12–15', notes: 'Very light weight — form matters more than load.', target: 2 },
+      { id: 'wed4', name: 'Dumbbell Curl', tag: 'Accessory', you: '2 × 8–12', her: '1–2 × 10–15', notes: 'No swinging, keep elbows near your body.', target: 2 },
+      { id: 'wed5', name: 'Hammer Curl', tag: 'Accessory', you: '2 × 10–15', her: '1–2 × 10–15', notes: 'Neutral grip, controlled reps.', target: 2 }
+    ]},
+    4: { label: 'Legs + Shoulders + Core', exercises: [
+      { id: 'thu1', name: 'Leg Press', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: "Seat setup, foot position, comfortable depth, knees tracking with toes, don't lock knees.", target: 2 },
+      { id: 'thu2', name: 'Goblet Squat', tag: 'Main', you: '2 × 8–12', her: '2 × 10–12', notes: 'Technique matters more than weight — she can start with a light dumbbell or bodyweight.', target: 2 },
+      { id: 'thu3', name: 'Machine Shoulder Press', tag: 'Main', you: '2 × 8–12', her: '1–2 × 10–15', notes: 'Learn the machine setup and comfortable range of motion.', target: 2 },
+      { id: 'thu4', name: 'Lateral Raise', tag: 'Accessory', you: '2 × 12–15', her: '1–2 × 12–15', notes: "Very light — if 2.5kg is already difficult for her, that's completely fine.", target: 2 },
+      { id: 'thu5', name: 'Plank', tag: 'Core', you: '2 × 20–40 sec', her: '2 × 15–30 sec', notes: 'Stop when form starts breaking.', target: 2 }
+    ]},
+    5: { label: 'Chest + Back + Arms', exercises: [
+      { id: 'fri1', name: 'Machine Chest Press', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: 'Second quality exposure — keep it light and controlled.', target: 2 },
+      { id: 'fri2', name: 'Lat Pulldown', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: '', target: 2 },
+      { id: 'fri3', name: 'Cable Fly', tag: 'Accessory', you: '2 × 10–15', her: '1–2 × 12–15', notes: '', target: 2 },
+      { id: 'fri4', name: 'Triceps Pushdown', tag: 'Accessory', you: '2 × 10–15', her: '1–2 × 10–15', notes: '', target: 2 },
+      { id: 'fri5', name: 'Dumbbell Curl', tag: 'Accessory', you: '2 × 10–15', her: '1–2 × 10–15', notes: "Shouldn't be brutal — just another quality exposure.", target: 2 }
+    ]},
+    6: { label: 'Legs + Shoulders + Core', exercises: [
+      { id: 'sat1', name: 'Leg Press', tag: 'Main', you: '2 × 8–12', her: '2 × 10–15', notes: '', target: 2 },
+      { id: 'sat2', name: 'Leg Curl Machine', tag: 'Main', you: '2 × 10–15', her: '2 × 12–15', notes: '', target: 2 },
+      { id: 'sat3', name: 'Machine Shoulder Press', tag: 'Main', you: '2 × 8–12', her: '1–2 × 10–15', notes: '', target: 2 },
+      { id: 'sat4', name: 'Lateral Raise', tag: 'Accessory', you: '2 × 12–15', her: '1–2 × 12–15', notes: '', target: 2 },
+      { id: 'sat5', name: 'Cable Crunch', tag: 'Core', you: '2 × 10–15', her: '1–2 × 10–15', notes: '', target: 2 }
+    ]}
+  }
+};
+
+function uid() {
+  return 'ex_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+}
 
 function todayStr() {
   const d = new Date();
@@ -389,30 +619,73 @@ function todayStr() {
 
 function loadData() {
   try {
-    const rawPlan = localStorage.getItem(PLAN_KEY);
-    plan = rawPlan ? JSON.parse(rawPlan) : {};
-  } catch (e) { plan = {}; }
-  try {
     const rawLog = localStorage.getItem(LOG_KEY);
     log = rawLog ? JSON.parse(rawLog) : {};
   } catch (e) { log = {}; }
 }
-
-function savePlan() {
-  localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
-}
 function saveLog() {
   localStorage.setItem(LOG_KEY, JSON.stringify(log));
+}
+
+function loadProgram() {
+  try {
+    const raw = localStorage.getItem(PROGRAM_KEY);
+    program = raw ? JSON.parse(raw) : null;
+  } catch (e) { program = null; }
+  if (!program) {
+    program = JSON.parse(JSON.stringify(DEFAULT_PROGRAM));
+    saveProgram();
+  }
+  if (!program.days) program.days = {};
+  if (typeof program.notes !== 'string') program.notes = '';
+}
+function saveProgram() {
+  localStorage.setItem(PROGRAM_KEY, JSON.stringify(program));
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    session = raw ? JSON.parse(raw) : {};
+  } catch (e) { session = {}; }
+}
+function saveSession() {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+function getTodaySession() {
+  const key = todayStr();
+  if (!session[key]) session[key] = {};
+  return session[key];
+}
+
+function tagColor(tag) {
+  if (tag === 'Accessory') return '#c084fc';
+  if (tag === 'Core') return '#facc15';
+  return '#60a5fa';
 }
 
 function renderToday() {
   const now = new Date();
   const dayIdx = now.getDay();
   const dateKey = todayStr();
-  const workoutName = plan[dayIdx] || '';
+  const dayData = program.days[dayIdx];
+  const workoutName = dayData ? (dayData.label || 'Untitled day') : '';
 
   document.getElementById('todayDay').textContent = DAY_NAMES[dayIdx] + ' · Today';
-  document.getElementById('todayWorkout').textContent = workoutName || 'Nothing planned yet';
+  document.getElementById('todayWorkout').textContent = workoutName || 'Rest day';
+
+  const setsEl = document.getElementById('todaySets');
+  if (dayData && dayData.exercises.length) {
+    const todaySession = getTodaySession();
+    let done = 0, total = 0;
+    dayData.exercises.forEach(ex => {
+      total += (ex.target || 0);
+      done += Math.min(todaySession[ex.id] || 0, ex.target || 0);
+    });
+    setsEl.textContent = total > 0 ? `${done}/${total} sets logged` : '';
+  } else {
+    setsEl.textContent = '';
+  }
 
   const entry = log[dateKey];
   const btn = document.getElementById('todayBtn');
@@ -431,28 +704,171 @@ function renderToday() {
   };
 }
 
-function renderPlan() {
-  const container = document.getElementById('planList');
+function renderDayTabs() {
+  const container = document.getElementById('dayTabs');
   container.innerHTML = '';
   const todayIdx = new Date().getDay();
 
   for (let i = 0; i < 7; i++) {
-    const row = document.createElement('div');
-    row.className = 'plan-row' + (i === todayIdx ? ' is-today' : '');
-    row.innerHTML = `
-      <div class="plan-day">${DAY_NAMES[i].slice(0,3)}</div>
-      <input class="plan-input" type="text" placeholder="e.g. Biceps, Legs, Rest" value="${(plan[i] || '').replace(/"/g,'&quot;')}" data-day="${i}">
-    `;
-    container.appendChild(row);
+    const hasData = !!program.days[i];
+    const btn = document.createElement('button');
+    btn.className = 'day-tab'
+      + (hasData ? ' has-data' : '')
+      + (i === todayIdx ? ' is-today' : '')
+      + (i === selectedDay ? ' active' : '');
+    btn.textContent = DAY_NAMES[i].slice(0, 3);
+    btn.addEventListener('click', () => {
+      if (!program.days[i]) {
+        program.days[i] = { label: '', exercises: [] };
+        saveProgram();
+      }
+      selectedDay = i;
+      renderDayTabs();
+      renderDayEditor();
+    });
+    container.appendChild(btn);
+  }
+}
+
+function renderDayEditor() {
+  const wrap = document.getElementById('dayEditor');
+  const dayData = program.days[selectedDay];
+
+  if (!dayData) {
+    wrap.innerHTML = '<div class="rest-note">Rest day — tap a day above to view or plan it.</div>';
+    return;
   }
 
-  container.querySelectorAll('.plan-input').forEach(input => {
-    input.addEventListener('input', () => {
-      const day = input.getAttribute('data-day');
-      plan[day] = input.value;
-      savePlan();
-      if (Number(day) === todayIdx) renderToday();
+  const isToday = selectedDay === new Date().getDay();
+  wrap.innerHTML = `
+    <div class="day-label-row">
+      <input class="day-label-input" id="dayLabelInput" placeholder="Day focus e.g. Chest + Triceps + Core" value="${(dayData.label || '').replace(/"/g, '&quot;')}">
+      <button class="day-remove-btn" id="dayRemoveBtn">Remove day</button>
+    </div>
+    <div id="exerciseList"></div>
+    <button class="add-exercise-btn" id="addExerciseBtn">+ Add exercise</button>
+  `;
+
+  document.getElementById('dayLabelInput').addEventListener('input', (e) => {
+    dayData.label = e.target.value;
+    saveProgram();
+    renderDayTabs();
+    if (isToday) renderToday();
+  });
+
+  document.getElementById('dayRemoveBtn').addEventListener('click', () => {
+    delete program.days[selectedDay];
+    saveProgram();
+    renderDayTabs();
+    renderDayEditor();
+    if (isToday) renderToday();
+    showToast('Day cleared');
+  });
+
+  document.getElementById('addExerciseBtn').addEventListener('click', () => {
+    dayData.exercises.push({ id: uid(), name: '', tag: 'Main', you: '', her: '', notes: '', target: 2 });
+    saveProgram();
+    renderExerciseList();
+  });
+
+  renderExerciseList();
+}
+
+function renderExerciseList() {
+  const dayData = program.days[selectedDay];
+  const container = document.getElementById('exerciseList');
+  if (!dayData || !container) return;
+  container.innerHTML = '';
+  const isToday = selectedDay === new Date().getDay();
+  const todaySession = isToday ? getTodaySession() : null;
+
+  dayData.exercises.forEach(ex => {
+    const card = document.createElement('div');
+    card.className = 'exercise-card';
+    card.style.borderLeft = '3px solid ' + tagColor(ex.tag);
+
+    const count = todaySession ? (todaySession[ex.id] || 0) : 0;
+    const target = ex.target || 0;
+    const complete = isToday && target > 0 && count >= target;
+
+    card.innerHTML = `
+      <div class="exercise-top">
+        <input class="exercise-name-input" placeholder="Exercise name" value="${(ex.name || '').replace(/"/g, '&quot;')}" data-field="name">
+        <select class="exercise-tag-select" data-field="tag">
+          <option value="Main" ${ex.tag === 'Main' ? 'selected' : ''}>Main</option>
+          <option value="Accessory" ${ex.tag === 'Accessory' ? 'selected' : ''}>Accessory</option>
+          <option value="Core" ${ex.tag === 'Core' ? 'selected' : ''}>Core</option>
+        </select>
+        <button class="exercise-remove-btn" title="Remove exercise">&times;</button>
+      </div>
+      <div class="exercise-row">
+        <div class="exercise-field">
+          <div class="exercise-field-label">You</div>
+          <input class="exercise-field-input" placeholder="2 × 8–12" value="${(ex.you || '').replace(/"/g, '&quot;')}" data-field="you">
+        </div>
+        <div class="exercise-field">
+          <div class="exercise-field-label">Her</div>
+          <input class="exercise-field-input" placeholder="2 × 10–15" value="${(ex.her || '').replace(/"/g, '&quot;')}" data-field="her">
+        </div>
+      </div>
+      <textarea class="exercise-notes" placeholder="Cues / form notes">${ex.notes || ''}</textarea>
+      <div class="exercise-bottom">
+        <div class="exercise-target-row">
+          Target sets
+          <input class="exercise-target-input" type="number" min="0" max="20" value="${target}" data-field="target">
+        </div>
+        ${isToday
+          ? `<div class="set-counter${complete ? ' complete' : ''}">
+               <span class="set-counter-dot"></span>
+               <span class="set-counter-label">Sets</span>
+               <span class="set-counter-value">${count}/${target}</span>
+             </div>`
+          : ''}
+      </div>
+    `;
+
+    card.querySelectorAll('[data-field]').forEach(input => {
+      const field = input.getAttribute('data-field');
+      if (field === 'notes') return;
+      const evt = input.tagName === 'SELECT' ? 'change' : 'input';
+      input.addEventListener(evt, () => {
+        if (field === 'target') {
+          ex.target = Math.max(0, parseInt(input.value, 10) || 0);
+        } else {
+          ex[field] = input.value;
+        }
+        saveProgram();
+        if (field === 'target' && isToday) { renderExerciseList(); renderToday(); }
+        if (field === 'tag') { card.style.borderLeft = '3px solid ' + tagColor(ex.tag); }
+      });
     });
+
+    const notesEl = card.querySelector('.exercise-notes');
+    notesEl.addEventListener('input', () => {
+      ex.notes = notesEl.value;
+      saveProgram();
+    });
+
+    card.querySelector('.exercise-remove-btn').addEventListener('click', () => {
+      dayData.exercises = dayData.exercises.filter(e => e.id !== ex.id);
+      saveProgram();
+      renderExerciseList();
+      if (isToday) renderToday();
+    });
+
+    if (isToday) {
+      card.querySelector('.set-counter').addEventListener('click', () => {
+        const s = getTodaySession();
+        const t = ex.target || 0;
+        const cur = s[ex.id] || 0;
+        s[ex.id] = t > 0 ? (cur + 1) % (t + 1) : 0;
+        saveSession();
+        renderExerciseList();
+        renderToday();
+      });
+    }
+
+    container.appendChild(card);
   });
 }
 
@@ -655,8 +1071,19 @@ document.getElementById('nextYearBtn').addEventListener('click', () => {
 
 (function init() {
   loadData();
+  loadProgram();
+  loadSession();
+  selectedDay = new Date().getDay();
+
+  document.getElementById('programNotes').value = program.notes || '';
+  document.getElementById('programNotes').addEventListener('input', (e) => {
+    program.notes = e.target.value;
+    saveProgram();
+  });
+
   renderToday();
-  renderPlan();
+  renderDayTabs();
+  renderDayEditor();
   renderHistory();
   renderYear();
 })();
