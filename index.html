@@ -381,6 +381,19 @@
       <div class="big-card-bar" id="backlogBar" style="display:none;"><div class="big-card-bar-fill" id="backlogBarFill"></div></div>
       <div class="big-card-bar-label" id="backlogBarLabel"></div>
     </a>
+
+    <a class="big-card" href="split.html">
+      <div class="big-card-top">
+        <div class="big-card-icon icon-split">S</div>
+        <div class="big-card-body">
+          <div class="big-card-title">Split</div>
+          <div class="big-card-sub" id="splitSub">Today's workout</div>
+        </div>
+        <div class="big-card-value" id="splitValue"></div>
+      </div>
+      <div class="big-card-bar" id="splitBar" style="display:none;"><div class="big-card-bar-fill" id="splitBarFill"></div></div>
+      <div class="big-card-bar-label" id="splitBarLabel"></div>
+    </a>
   </div>
 
   <details class="collapse" id="moreSection" data-collapse-key="hub_more_open">
@@ -415,17 +428,6 @@
   <details class="collapse muted" id="otherSection" data-collapse-key="hub_other_open">
     <summary>Other <span class="chev">&#8250;</span></summary>
     <div class="collapse-body">
-
-      <a class="card" href="split.html">
-        <div class="card-icon icon-split">S</div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <div class="card-title">Split</div>
-          </div>
-          <div class="card-sub" id="splitSnippet">Weekly workout plan and log</div>
-        </div>
-        <div class="card-arrow">&#8250;</div>
-      </a>
 
       <a class="card" href="backup.html">
         <div class="card-icon icon-backup">↓</div>
@@ -524,20 +526,53 @@ function renderCacheCard() {
   }
 }
 
-function renderSplitSnippet() {
-  const el = document.getElementById('splitSnippet');
+function renderSplitCard() {
+  const subEl = document.getElementById('splitSub');
+  const valueEl = document.getElementById('splitValue');
+  const bar = document.getElementById('splitBar');
+  const fill = document.getElementById('splitBarFill');
+  const label = document.getElementById('splitBarLabel');
   try {
-    const plan = JSON.parse(localStorage.getItem('workout_plan') || '{}');
-    const log = JSON.parse(localStorage.getItem('workout_log') || '{}');
+    const program = JSON.parse(localStorage.getItem('workout_program') || 'null');
     const dayIdx = new Date().getDay();
-    const today = todayStr();
-    const workout = plan[dayIdx];
-    const done = log[today] && log[today].done;
+    const dayData = program && program.days ? program.days[dayIdx] : null;
 
-    if (!workout) { el.textContent = 'Nothing planned for today yet'; return; }
-    el.textContent = 'Today: ' + workout + (done ? ' — done ✓' : '');
+    if (!dayData) {
+      subEl.textContent = 'Rest day';
+      valueEl.textContent = '';
+      bar.style.display = 'none';
+      label.textContent = '';
+      return;
+    }
+
+    subEl.textContent = dayData.label || 'Untitled day';
+
+    const session = JSON.parse(localStorage.getItem('workout_session') || '{}');
+    const todaySession = session[todayStr()] || {};
+    let done = 0, total = 0;
+    (dayData.exercises || []).forEach(ex => {
+      total += (ex.target || 0);
+      done += Math.min(todaySession[ex.id] || 0, ex.target || 0);
+    });
+
+    if (total === 0) {
+      valueEl.textContent = '';
+      bar.style.display = 'none';
+      label.textContent = '';
+      return;
+    }
+
+    const pct = Math.round((done / total) * 100);
+    valueEl.textContent = done + '/' + total;
+    valueEl.style.color = '#f87171';
+    bar.style.display = 'block';
+    fill.style.width = pct + '%';
+    fill.style.background = '#f87171';
+    label.textContent = pct + '% of sets logged';
   } catch (e) {
-    el.textContent = 'Weekly workout plan and log';
+    subEl.textContent = "Today's workout";
+    valueEl.textContent = '';
+    bar.style.display = 'none';
   }
 }
 
@@ -613,7 +648,7 @@ function renderCountersCard() {
 }
 
 renderCacheCard();
-renderSplitSnippet();
+renderSplitCard();
 renderBacklogCard();
 renderCountersCard();
 
