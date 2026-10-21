@@ -1,813 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#080808">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Zenith">
-<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
-<link rel="manifest" href="manifest.json">
-<title>Zenith</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill Tree</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --bg:      #080808;
-    --surface: #101010;
-    --border:  #1c1c1c;
-    --text:    #e0e0e0;
-    --muted:   #444;
-    --c-STR:    #f87171;
-    --c-END:    #4ade80;
-    --c-INT:    #60a5fa;
-    --c-BLD:    #facc15;
-    --c-SPIRIT: #c084fc;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Exo 2', sans-serif;
-    min-height: 100vh;
-    padding: 24px 16px 56px;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  /* ── HEADER ── */
-  .header {
-    text-align: center;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-  }
-  .header-eyebrow {
-    font-size: 10px;
-    letter-spacing: 5px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .overall-rank-badge {
-    display: inline-block;
-    font-size: 32px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 2px;
-    line-height: 1;
-  }
-  .overall-title {
-    font-size: 12px;
-    color: #666;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-
-  /* ── SECTION LABEL ── */
-  .section-label {
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  /* ── STAT CARDS ── */
-  .stats-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-  }
-  .stat-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .stat-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .stat-tag {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    min-width: 48px;
-  }
-  .stat-full {
-    font-size: 12px;
-    color: #555;
-    font-weight: 400;
-  }
-  .stat-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-  }
-  .stat-right-top {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-  .stat-rank-title {
-    font-size: 10px;
-    letter-spacing: 0.4px;
-    color: #666;
-  }
-  .stat-rank-label {
-    font-size: 16px;
-    font-weight: 700;
-  }
-  .stat-ep-label {
-    font-size: 11px;
-    color: #444;
-    transition: color 0.2s ease;
-  }
-  @keyframes epPulse {
-    0%   { transform: scale(1);    opacity: 1; }
-    30%  { transform: scale(1.18); opacity: 0.85; }
-    100% { transform: scale(1);    opacity: 1; }
-  }
-  .stat-ep-label.pulse { animation: epPulse 0.4s ease; }
-  .bar-bg {
-    height: 3px;
-    background: #1a1a1a;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.5s cubic-bezier(.4,0,.2,1);
-  }
-
-  /* ── STAT ACTIONS ── */
-  .stat-add-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .add-ep-btn {
-    font-family: 'Exo 2', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    padding: 6px 14px;
-    border-radius: 5px;
-    border: 1px solid;
-    background: transparent;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  .add-ep-btn:hover  { opacity: 0.7; }
-  .add-ep-btn:active { opacity: 0.4; }
-  .reset-stat-btn {
-    font-family: 'Exo 2', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 6px 12px;
-    border-radius: 5px;
-    border: 1px solid #262626;
-    background: transparent;
-    color: #555;
-    cursor: pointer;
-    margin-left: auto;
-  }
-  .reset-stat-btn:hover { border-color: #444; color: #888; }
-  .spirit-input {
-    flex: 1;
-    background: #0a0a0a;
-    border: 1px solid #252525;
-    border-radius: 5px;
-    color: #c084fc;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 10px;
-    outline: none;
-    width: 0;
-  }
-  .spirit-input::placeholder { color: #3a3a3a; font-weight: 400; }
-  .spirit-input:focus { border-color: #5b21b6; }
-  /* hide number input arrows */
-  .spirit-input::-webkit-outer-spin-button,
-  .spirit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .spirit-input[type=number] { -moz-appearance: textfield; }
-
-  /* ── DIVIDER ── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 24px 0;
-  }
-
-  /* ── QUEST CARD ── */
-  .quest-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
-    min-height: 110px;
-    margin-bottom: 10px;
-  }
-  .quest-empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 70px;
-    font-size: 14px;
-    color: #2e2e2e;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-style: italic;
-  }
-  .quest-category-row {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  .quest-name {
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 6px;
-    line-height: 1.2;
-  }
-  .quest-desc {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 16px;
-  }
-  .rewards-row {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .reward-line {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-  }
-  .reward-state {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    min-width: 52px;
-  }
-  .reward-sep {
-    color: #2a2a2a;
-  }
-  .reward-ep {
-    color: #888;
-  }
-  .resolved-badge {
-    display: inline-block;
-    margin-top: 14px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 4px;
-    background: #0e0e0e;
-    border: 1px solid #222;
-  }
-
-  /* ── ACTION BUTTONS ── */
-  .quest-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .action-btn {
-    flex: 1;
-    padding: 13px 8px;
-    border: 1px solid;
-    border-radius: 6px;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    background: transparent;
-    transition: opacity 0.15s;
-  }
-  .action-btn:hover  { opacity: 0.75; }
-  .action-btn:active { opacity: 0.5; }
-  .action-btn:disabled { opacity: 0.2; cursor: default; }
-  .btn-done  { color: #4ade80; border-color: #4ade8028; }
-  .btn-push  { color: #facc15; border-color: #facc1528; }
-  .btn-miss  { color: #f87171; border-color: #f8717128; }
-
-  /* ── ROLL BUTTON ── */
-  .roll-btn {
-    width: 100%;
-    padding: 15px;
-    background: #0c0717;
-    border: 1px solid #5b21b6;
-    color: #a78bfa;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .roll-btn:hover  { background: #150c2a; border-color: #7c3aed; }
-  .roll-btn:active { background: #1e0f3a; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #161616;
-    border: 1px solid #2a2a2a;
-    color: #ccc;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    opacity: 0;
-    transition: opacity 0.25s;
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 999;
-  }
-  .toast.show { opacity: 1; }
-  .toast.rankup {
-    background: #0e0820;
-    border-color: #7c3aed;
-    color: #c084fc;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    padding: 14px 24px;
-    box-shadow: 0 0 24px #7c3aed55;
-  }
-
-  /* ===== shared polish ===== */
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  body { animation: fadeInUp 0.35s ease; }
-  body {
-    padding-top: calc(env(safe-area-inset-top, 0px));
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-  }
-
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #333; }
-  * { scrollbar-width: thin; scrollbar-color: #262626 transparent; }
-
-  button, a.card, .card {
-    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
-  }
-  button:active { transform: scale(0.96); }
-  a.card:active, .card:active { transform: scale(0.98); }
-
-  .toast-wrap {
-    position: fixed;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    pointer-events: none;
-  }
-  .toast {
-    background: #161616;
-    border: 1px solid #2a2a2a;
-    color: #eee;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 9px 16px;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.err { border-color: #e2574f; color: #f2a09c; }
-
+:root{--bg:#09090b;--sf:#111115;--line:#1f1f27;--tx:#ececf1;--mut:#7d7d8c;--ac:#b8a1ff;--pk:#ff8fb1}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.5 'Exo 2',system-ui,'Noto Sans JP',sans-serif;padding:16px 16px 96px;max-width:760px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;padding:4px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px;gap:10px}
+.logo{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font:800 22px 'Exo 2',sans-serif;letter-spacing:.5px}
+.jp{font-size:12px;color:var(--mut);letter-spacing:3px}
+.stats{display:flex;align-items:center;gap:6px}
+#lvl,#arc{border:1px solid var(--line);border-radius:6px;padding:2px 10px;font-weight:600;font-size:13px}
+#lvl{color:var(--pk);border-color:#ff8fb144}
+#arc{color:var(--ac);border-color:#b8a1ff44}
+nav{position:fixed;bottom:0;left:0;right:0;background:#09090bf2;border-top:1px solid var(--line);display:flex;justify-content:center;gap:2px;padding:6px;z-index:5}
+nav button{flex:1;max-width:124px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);font:600 13px 'Exo 2',sans-serif;padding:10px 4px;border-radius:0}
+nav button.on{color:var(--tx);border-bottom-color:var(--ac)}
+.card{background:var(--sf);border:1px solid var(--line);border-left:3px solid var(--c,var(--ac));border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.card b{font-weight:600}
+.warn{--c:#f59e0b}
+.row,.pi{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pi{padding:8px 0;border-top:1px solid var(--line);margin-top:8px}
+.mut,.sub{color:var(--mut);font-size:13px}
+.sub{margin-bottom:12px}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:10px;padding:0 6px;color:var(--mut)}
+.chip{color:var(--c);font-size:12px;font-weight:600;margin-right:8px}
+.chip::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:1px}
+button{font:600 13px 'Exo 2',sans-serif;background:#16161c;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--ac)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ac)}
+#snd{padding:3px 8px;font-size:14px}
+.big{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--c);background:none;color:#09090b;font-size:26px;flex:none;padding:0}
+.big.on{background:var(--c)}
+.pop{animation:rip .55s}
+@keyframes rip{0%{box-shadow:0 0 0 0 var(--c)}100%{box-shadow:0 0 0 16px #0000}}
+.cells{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.cell{width:38px;height:38px;border-radius:5px;background:#16161c;border:1px solid var(--line);color:var(--mut);font-size:11px;padding:3px;cursor:pointer}
+.cell.on{background:var(--c);border-color:var(--c);color:#09090b;font-weight:700}
+.cell.fut{opacity:.3;cursor:default}
+.nodes{display:flex;gap:10px;margin:10px 0}
+.node{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mut)}
+.node.on{background:var(--c);border-color:var(--c);color:#09090b;font-weight:700}
+.bar{height:4px;background:#1a1a22;border-radius:2px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;background:var(--c)}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:600;text-align:center}
+.head small{display:block;font-size:12px;font-weight:400;color:var(--mut)}
+input,select,textarea{background:#0c0c10;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:7px;font:14px 'Exo 2',sans-serif;width:100%;margin:3px 0 8px}
+label{font-size:12px;color:var(--mut)}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--tx)}
+.chk input{width:auto;margin:0}
+.badge{display:inline-block;border:1px solid #ff8fb166;color:var(--pk);border-radius:12px;padding:1px 11px;font-size:12px;font-weight:600;margin-right:6px}
+#toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-90px);background:#15151b;border:1px solid var(--ac);color:var(--tx);font-weight:600;padding:9px 18px;border-radius:6px;transition:transform .3s;z-index:9;pointer-events:none;text-align:center}
+#toast.show{transform:translate(-50%,0)}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:8;background:linear-gradient(105deg,transparent 46%,#ffffffcc 49.6%,var(--ac) 50.4%,transparent 54%)}
+#flash.go{animation:sw .6s ease-out}
+@keyframes sw{0%{opacity:1;transform:translateX(-100%)}100%{opacity:0;transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
-<a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#555;text-decoration:none;margin-bottom:14px;">&#8592; Hub</a>
-<div class="header">
-  <div class="header-eyebrow">⚔ Zenith</div>
-  <div class="overall-rank-badge" id="overall-rank">F</div>
-  <div class="overall-title" id="overall-title">The Unawakened</div>
-</div>
-
-<!-- STATS -->
-<div class="section-label">Player Stats</div>
-<div class="stats-grid" id="stats-grid"></div>
-<div style="text-align:right;margin:-4px 0 4px;">
-  <button class="reset-stat-btn" style="margin-left:0;" onclick="resetAllStats()">Reset all stats</button>
-</div>
-
-<div class="divider"></div>
-
-<!-- QUEST -->
-<div class="section-label">Dungeon Raid</div>
-
-<div class="quest-card" id="quest-card">
-  <div class="quest-empty-state" id="quest-empty">Dungeon Sealed</div>
-  <div id="quest-content" style="display:none">
-    <div class="quest-category-row" id="quest-category"></div>
-    <div class="quest-name" id="quest-name"></div>
-    <div class="quest-desc" id="quest-desc"></div>
-    <div class="rewards-row" id="quest-rewards"></div>
-    <div id="quest-resolved-badge" style="display:none" class="resolved-badge"></div>
-  </div>
-</div>
-
-<button class="roll-btn" onclick="rollQuest()">Roll Dungeon Raid</button>
-
-<div class="toast" id="toast"></div>
-
+<header><div class="logo"><h1>Skill Tree</h1><span class="jp">スキルツリー</span><span class="mut" style="font-size:11px">v5</span></div><div class="stats"><button id="snd" aria-label="Toggle sound" onclick="S.sound=S.sound===false;save();SFX.fill();render()">&#128266;</button><span id="arc"></span><span id="lvl"></span></div></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+<div id="toast"></div><div id="flash"></div>
 <script>
-
-// ─── CONFIG ─────────────────────────────────────────────────────────────────
-
-const RANKS = [
-  { rank: 'F',    min: 0,     max: 399,      value: 1,  title: 'Unawakened'   },
-  { rank: 'E',    min: 400,   max: 1099,     value: 2,  title: 'Initiate'     },
-  { rank: 'D',    min: 1100,  max: 2099,     value: 3,  title: 'Seeker'       },
-  { rank: 'C',    min: 2100,  max: 3399,     value: 4,  title: 'Hunter'       },
-  { rank: 'B',    min: 3400,  max: 4999,     value: 5,  title: 'Veteran'      },
-  { rank: 'A',    min: 5000,  max: 6899,     value: 6,  title: 'Elite'        },
-  { rank: 'S',    min: 6900,  max: 8799,     value: 7,  title: 'Sovereign'    },
-  { rank: 'SS',   min: 8800,  max: 10699,    value: 8,  title: 'Apex'         },
-  { rank: 'SSS',  min: 10700, max: 12699,    value: 9,  title: 'Legendary' },
-  { rank: 'SSS+', min: 12700, max: Infinity, value: 10, title: 'Transcendent' },
-];
-
-const OVERALL_TITLES = {
-  1: 'The Unawakened',
-  2: 'Shadow Initiate',
-  3: 'Iron Challenger',
-  4: 'Dungeon Walker',
-  5: 'Gate Breaker',
-  6: 'Void Hunter',
-  7: 'Sovereign Raider',
-  8: 'Monarch of Depths',
-  9: 'The Absolute',
-  10: 'The Absolute',
-};
-
-const STAT_META = {
-  STR:    { full: 'Strength',  color: '#f87171' },
-  END:    { full: 'Endurance', color: '#4ade80' },
-  INT:    { full: 'Intellect', color: '#60a5fa' },
-  BLD:    { full: 'Build',     color: '#facc15' },
-  SPIRIT: { full: 'Spirit',    color: '#c084fc' },
-};
-
-const QUEST_POOL = [
-  {
-    name: 'The Bicep Gauntlet',
-    desc: 'Max set for Bicep workout',
-    category: ['BLD'],
-    rewards: {
-      complete: { BLD: 10 },
-      push:     { SPIRIT: 5  },
-      miss:     { SPIRIT: -3 },
-    },
-  },{
-    name: 'Iron Fist',
-    desc: 'Max push-up set — go until failure.',
-    category: ['STR'],
-    rewards: {
-      complete: { STR: 10 },
-      push:     { SPIRIT: 5  },
-      miss:     { SPIRIT: -3 },
-    },
-  },
-  {
-    name: 'Ground Zero',
-    desc: 'Sit-ups + Squats + Plank hold. No skipping any.',
-    category: ['STR', 'END'],
-    rewards: {
-      complete: { STR: 10, END: 10 },
-      push:     { SPIRIT: 5 },
-      miss:     { SPIRIT: -3 },
-    },
-  },
-  {
-    name: 'Body Architect',
-    desc: 'Calisthenics skill practice — form over reps.',
-    category: ['STR', 'END'],
-    rewards: {
-      complete: { STR: 10, END: 10 },
-      push:     { SPIRIT: 5 },
-      miss:     { SPIRIT: -3 },
-    },
-  },
-  {
-    name: 'Still Mind',
-    desc: 'Meditation / no-phone wind-down before sleep.',
-    category: ['SPIRIT'],
-    rewards: {
-      complete: { SPIRIT: 20 },
-      push:     { SPIRIT: 3  },
-      miss:     { SPIRIT: -4 },
-    },
-  },
-];
-
-// ─── STORAGE ─────────────────────────────────────────────────────────────────
-
-const STATS_KEY = 'zenith_stats';
-const QUEST_KEY = 'zenith_special_quest';
-const DEFAULT_STATS = { STR: 0, END: 0, INT: 0, BLD: 0, SPIRIT: 0 };
-
-function loadStats() {
-  try {
-    const s = localStorage.getItem(STATS_KEY);
-    return s ? { ...DEFAULT_STATS, ...JSON.parse(s) } : { ...DEFAULT_STATS };
-  } catch { return { ...DEFAULT_STATS }; }
-}
-
-function saveStats(stats) {
-  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-}
-
-function loadQuest() {
-  try {
-    const q = localStorage.getItem(QUEST_KEY);
-    return q ? JSON.parse(q) : null;
-  } catch { return null; }
-}
-
-function saveQuest(quest) {
-  localStorage.setItem(QUEST_KEY, JSON.stringify(quest));
-}
-
-// ─── RANK UTILS ──────────────────────────────────────────────────────────────
-
-function getRankData(ep) {
-  for (let i = RANKS.length - 1; i >= 0; i--) {
-    if (ep >= RANKS[i].min) return RANKS[i];
-  }
-  return RANKS[0];
-}
-
-function getBarProgress(ep) {
-  const r = getRankData(ep);
-  if (r.rank === 'SSS+') return 1;
-  return (ep - r.min) / (r.max - r.min + 1);
-}
-
-function getOverallRank(stats) {
-  const vals = Object.keys(STAT_META).map(s => getRankData(stats[s] || 0).value);
-  const avg  = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-  return RANKS.find(r => r.value === avg) || RANKS[0];
-}
-
-// ─── RENDER STATS ─────────────────────────────────────────────────────────────
-
-function renderStats(pulseStat) {
-  const stats = loadStats();
-  const grid  = document.getElementById('stats-grid');
-  grid.innerHTML = '';
-
-  Object.entries(STAT_META).forEach(([key, meta]) => {
-    const ep       = stats[key] || 0;
-    const rankData = getRankData(ep);
-    const progress = getBarProgress(ep);
-
-    const isSpirit = key === 'SPIRIT';
-    const epPulseClass = key === pulseStat ? ' pulse' : '';
-
-    const actionHTML = isSpirit
-      ? `<div class="stat-add-row">
-           <input class="spirit-input" id="spirit-input" type="number" placeholder="e.g. +5 or −3" />
-           <button class="add-ep-btn" style="color:${meta.color};border-color:${meta.color}33" onclick="logSpirit()">Log</button>
-           <button class="reset-stat-btn" onclick="resetStat('${key}')">Reset</button>
-         </div>`
-      : `<div class="stat-add-row">
-           <button class="add-ep-btn" style="color:${meta.color};border-color:${meta.color}33" onclick="addEP('${key}', 10)">+ 10 EP</button>
-           <button class="reset-stat-btn" onclick="resetStat('${key}')">Reset</button>
-         </div>`;
-
-    const card = document.createElement('div');
-    card.className = 'stat-card';
-    card.innerHTML = `
-      <div class="stat-row">
-        <div class="stat-left">
-          <span class="stat-tag" style="color:${meta.color}">${key}</span>
-          <span class="stat-full">${meta.full}</span>
-        </div>
-        <div class="stat-right">
-          <div class="stat-right-top">
-            <span class="stat-rank-label" style="color:${meta.color}">${rankData.rank}</span>
-            <span class="stat-ep-label${epPulseClass}">${ep.toLocaleString()} EP</span>
-          </div>
-          <div class="stat-rank-title">${rankData.title}</div>
-        </div>
-      </div>
-      <div class="bar-bg">
-        <div class="bar-fill" style="width:${Math.min(progress * 100, 100).toFixed(1)}%;background:${meta.color}22;box-shadow:0 0 6px ${meta.color}66;border-right:2px solid ${meta.color}"></div>
-      </div>
-      ${actionHTML}
-    `;
-    grid.appendChild(card);
-  });
-
-  // Overall
-  const overall = getOverallRank(stats);
-  document.getElementById('overall-rank').textContent  = overall.rank;
-  document.getElementById('overall-title').textContent = OVERALL_TITLES[overall.value] || 'The Unawakened';
-}
-
-// ─── RENDER QUEST ─────────────────────────────────────────────────────────────
-
-function renderQuest(quest) {
-  const emptyEl   = document.getElementById('quest-empty');
-  const contentEl = document.getElementById('quest-content');
-  const badgeEl   = document.getElementById('quest-resolved-badge');
-
-  if (!quest || quest.sealed) {
-    emptyEl.style.display   = 'flex';
-    emptyEl.textContent     = 'Dungeon Sealed';
-    contentEl.style.display = 'none';
-    return;
-  }
-
-  emptyEl.style.display   = 'none';
-  contentEl.style.display = 'block';
-
-  // Category
-  const catHTML = quest.category
-    .map(s => `<span style="color:${STAT_META[s].color}">${s}</span>`)
-    .join(' <span style="color:#333">+</span> ');
-  document.getElementById('quest-category').innerHTML = `⚔ ${catHTML}`;
-  document.getElementById('quest-name').textContent   = quest.name;
-  document.getElementById('quest-desc').textContent   = quest.desc;
-
-  // Rewards
-  const rewardsEl = document.getElementById('quest-rewards');
-  rewardsEl.innerHTML = '';
-
-  const stateConfig = {
-    complete: { label: '✓ DONE', color: '#4ade80' },
-    push:     { label: '↷ PUSH', color: '#facc15' },
-    miss:     { label: '✕ MISS', color: '#f87171' },
-  };
-
-  Object.entries(stateConfig).forEach(([state, cfg]) => {
-    const reward  = quest.rewards[state];
-    const entries = Object.entries(reward);
-    const epText  = entries.length
-      ? entries.map(([stat, ep]) => {
-          const sign  = ep >= 0 ? '+' : '';
-          const color = ep < 0 ? '#f87171' : STAT_META[stat].color;
-          return `<span style="color:${color}">${sign}${ep} ${stat}</span>`;
-        }).join('  ')
-      : '<span style="color:#333">0 EP</span>';
-
-    const line = document.createElement('div');
-    line.className = 'reward-line';
-    line.innerHTML = `
-      <span class="reward-state" style="color:${cfg.color}">${cfg.label}</span>
-      <span class="reward-sep">→</span>
-      <span class="reward-ep">${epText}</span>
-    `;
-    rewardsEl.appendChild(line);
-  });
-
-  // Resolved badge
-  if (quest.resolved) {
-    const cfg = stateConfig[quest.resolved];
-    badgeEl.style.display     = 'inline-block';
-    badgeEl.style.color       = cfg.color;
-    badgeEl.style.borderColor = cfg.color + '33';
-    badgeEl.textContent       = `Resolved: ${cfg.label}`;
-  } else {
-    badgeEl.style.display = 'none';
-  }
-}
-
-// ─── ACTIONS ─────────────────────────────────────────────────────────────────
-
-function addEP(stat, amount) {
-  const stats    = loadStats();
-  const oldRank  = getRankData(stats[stat] || 0).rank;
-  stats[stat]    = Math.max(0, (stats[stat] || 0) + amount);
-  const newRank  = getRankData(stats[stat]).rank;
-  saveStats(stats);
-  renderStats(stat);
-  if (newRank !== oldRank) {
-    showToast(`⬆ ${stat} RANK UP  ${oldRank} → ${newRank}`, true);
-  } else {
-    showToast(`+${amount} EP → ${stat}`);
-  }
-}
-
-function resetStat(stat) {
-  if (!confirm(`Reset ${stat} to 0 EP?`)) return;
-  const stats  = loadStats();
-  stats[stat]  = 0;
-  saveStats(stats);
-  renderStats();
-  showToast(`${stat} reset to 0 EP`);
-}
-
-function resetAllStats() {
-  if (!confirm('Reset every stat to 0 EP? This affects your overall rank too.')) return;
-  saveStats({ ...DEFAULT_STATS });
-  renderStats();
-  showToast('All stats reset to 0 EP');
-}
-
-function logSpirit() {
-  const input    = document.getElementById('spirit-input');
-  const val      = parseInt(input.value, 10);
-  if (isNaN(val) || val === 0) return;
-  const stats    = loadStats();
-  const oldRank  = getRankData(stats.SPIRIT || 0).rank;
-  stats.SPIRIT   = Math.max(0, (stats.SPIRIT || 0) + val);
-  const newRank  = getRankData(stats.SPIRIT).rank;
-  saveStats(stats);
-  input.value = '';
-  renderStats('SPIRIT');
-  if (newRank !== oldRank && val > 0) {
-    showToast(`⬆ SPIRIT RANK UP  ${oldRank} → ${newRank}`, true);
-  } else {
-    showToast(val > 0 ? `+${val} SPIRIT — Resolve logged` : `${val} SPIRIT — Missed`);
-  }
-}
-
-function rollQuest() {
-  const roll = Math.floor(Math.random() * 13) + 1; // 1 to 13
-  if (roll % 2 !== 0) {
-    // Odd — dungeon sealed
-    saveQuest({ sealed: true, roll });
-    renderQuest({ sealed: true, roll });
-    showToast('Dungeon Sealed');
-    return;
-  }
-  // Even — pull a quest
-  const idx   = Math.floor(Math.random() * QUEST_POOL.length);
-  const quest = { ...QUEST_POOL[idx], resolved: null, roll };
-  saveQuest(quest);
-  renderQuest(quest);
-  showToast(`Rolled ${roll} — Raid Unlocked`);
-}
-
-// ─── TOAST ───────────────────────────────────────────────────────────────────
-
-let _toastTimer;
-function showToast(msg, isRankUp = false) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.remove('show', 'rankup');
-  void el.offsetWidth; // force reflow for re-animation
-  el.classList.add('show');
-  if (isRankUp) el.classList.add('rankup');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show', 'rankup'), isRankUp ? 3500 : 2500);
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-
-renderStats();
-renderQuest(loadQuest());
+var KEY='skilltree_v1',S=null;
+var TH=[4,8,12,16,20],RT=[15,30,45,60,75],RN=['Unranked','Novice','Apprentice','Adept','Expert','Master'];
+var MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var tab='today',vy=null,vm=null,sidx=null;
+var pad=function(n){return String(n).padStart(2,'0')};
+var esc=function(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+function now(h){h=h==null?(S?S.rollover:6):h;var t=new Date(Date.now()-h*36e5);return{y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()}}
+var key=function(y,m,d){return y+'-'+pad(m)+'-'+pad(d)};
+var dim=function(y,m){return new Date(y,m,0).getDate()};
+function fresh(){var c=now(6);return{v:3,rollover:6,sgoal:3,start:{y:c.y,m:c.m},days:{},notes:{},done:{},used:{},claimed:{},
+rewards:['Badge only','Badge + a small experience (a walk somewhere new)','Badge + time with someone you care about','Badge + a bigger outing','Badge + free pick of next season\u2019s theme or skill'],
+branches:[
+{id:'body',name:'Body',color:'#ef4444',q:[{id:'body',name:'Push-ups',min:'Daily push-ups',goal:3,opt:false,pm:'One heavy-sets session',ps:'Two heavy sessions a week for a month'},{id:'body2',name:'Gym / calisthenics',min:'One session',goal:3,opt:false,pm:'One superset session',ps:'Two superset sessions a week for a month'}]},
+{id:'study',name:'Study',color:'#3b82f6',q:[{id:'study',name:'Japanese',min:'App session (3-5 min)',goal:3,opt:false,pm:'One extra 1-hour Japanese block',ps:'One extra long block a week for a month'},{id:'study2',name:'M.E. work',min:'30 minutes',goal:3,opt:false,pm:'One extra 2-hour study block',ps:'One extra long block a week for a month'}]},
+{id:'craft',name:'Craft',color:'#a78bfa',q:[{id:'craft',name:'Violin / guitar',min:'10 minutes',goal:3,opt:false,pm:'One extended 45-60 min practice',ps:'One extended session a week for a month'},{id:'craft2',name:'Coding / game dev',min:'10 minutes',goal:3,opt:false,pm:'One extended 60 min build session',ps:'One extended session a week for a month'}]},
+{id:'bond',name:'Bond',color:'#22c55e',q:[{id:'bond',name:'Reach out',min:'One genuine message',goal:0,opt:true,pm:'',ps:''}]}]}}
+function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(r&&r.branches){r.branches.forEach(function(b){if(!b.q){b.q=[{id:b.id,name:b.quests||b.name,min:b.min||''}];delete b.quests;delete b.min}b.q.forEach(function(q){if(q.goal==null){q.goal=b.goal!=null?b.goal:3;q.opt=!!b.opt;q.pm=b.pm||'';q.ps=b.ps||''}});delete b.goal;delete b.opt;delete b.pm;delete b.ps});return r}}catch(e){}return fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+S=load();save();
+function has(k,q){return(S.days[k]||[]).indexOf(q)>-1}
+function qc(q,y,m){var n=0;for(var d=1;d<=dim(y,m);d++)if(has(key(y,m,d),q))n++;return n}
+function mi(y,m){return y*12+m-1}
+function sIdx(y,m){return Math.floor((mi(y,m)-mi(S.start.y,S.start.m))/3)}
+function sMon(i){var b=mi(S.start.y,S.start.m)+i*3,o=[];for(var j=0;j<3;j++){var t=b+j;o.push([Math.floor(t/12),t%12+1])}return o}
+function sLab(i){return'Arc '+(Math.floor(i/4)+1)+' \u2022 Season '+(((i%4)+4)%4+1)}
+function sc(q,i){var n=0;sMon(i).forEach(function(x){n+=qc(q,x[0],x[1])});return n}
+function allQ(){var o=[];S.branches.forEach(function(b){b.q.forEach(function(q){o.push({b:b,q:q})})});return o}
+var nodes=function(n){return TH.filter(function(t){return n>=t}).length};
+var rank=function(n){return RT.filter(function(t){return n>=t}).length};
+function months(incl){var c=now(),o=[],y=S.start.y,m=S.start.m;while(y<c.y||(y==c.y&&m<=c.m)){if(incl||y<c.y||m<c.m)o.push([y,m]);if(++m>12){m=1;y++}}return o}
+function earned(q){return months(false).filter(function(x){return qc(q,x[0],x[1])>=20}).length}
+function tokens(q){return earned(q)-(S.used[q]||0)}
+function level(){var n=0;months(true).forEach(function(x){allQ().forEach(function(o){n+=nodes(qc(o.q.id,x[0],x[1]))})});return n}
+function seasons(){var c=now(),cur=mi(c.y,c.m),o=[];for(var i=0;mi(S.start.y,S.start.m)+i*3+2<cur;i++)o.push(i);return o}
+function pending(){var o=[];months(false).forEach(function(x,i){if(!i)return;allQ().forEach(function(a){var q=a.q,k='m|'+x[0]+'-'+x[1]+'|'+q.id,n=qc(q.id,x[0],x[1]);if(q.opt||!q.goal||S.done[k])return;if(n<TH[q.goal-1])o.push({k:k,id:q.id,p:q.pm,t:a.b.name+' \u2022 '+q.name+' \u2022 '+MN[x[1]-1]+' '+x[0]+': '+n+' of '+TH[q.goal-1]+' days'})})});
+seasons().forEach(function(i){allQ().forEach(function(a){var q=a.q,k='s|'+i+'|'+q.id,n=sc(q.id,i);if(q.opt||!q.goal||S.done[k])return;if(rank(n)<S.sgoal)o.push({k:k,id:q.id,p:q.ps,t:a.b.name+' \u2022 '+q.name+' \u2022 '+sLab(i)+': '+RN[rank(n)]})})});return o}
+var AC=null,pop='';
+function tn(f,d,t,v,w){if(S&&S.sound===false)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),a=AC.currentTime+(w||0);o.type=t||'sine';o.frequency.setValueAtTime(f,a);g.gain.setValueAtTime(.0001,a);g.gain.exponentialRampToValueAtTime(v||.08,a+.01);g.gain.exponentialRampToValueAtTime(.0001,a+d);o.connect(g);g.connect(AC.destination);o.start(a);o.stop(a+d+.02)}catch(e){}}
+var SFX={fill:function(){tn(659,.12,'triangle',.09);tn(988,.22,'triangle',.07,.07)},undo:function(){tn(330,.12,'sine',.06)},tab:function(){tn(520,.04,'square',.02)},
+node:function(){[523,659,784,1047].forEach(function(f,i){tn(f,.25,'triangle',.08,i*.08)});tn(2093,.5,'sine',.03,.3)},
+rank:function(){[392,523,659,784,1047,1319].forEach(function(f,i){tn(f,.4,'sawtooth',.04,i*.1);tn(f*2,.4,'sine',.03,i*.1)})},
+coin:function(){tn(988,.08,'square',.04);tn(1319,.3,'square',.04,.08)},shield:function(){tn(220,.25,'sawtooth',.05);tn(440,.35,'triangle',.06,.1)}};
+function banner(msg,fl){var t=document.getElementById('toast');t.textContent=msg;t.className='show';clearTimeout(banner.t);banner.t=setTimeout(function(){t.className=''},2400);if(fl){var f=document.getElementById('flash');f.className='';void f.offsetWidth;f.className='go'}}
+function toggle(q,k){var o=allQ().filter(function(a){return a.q.id==q})[0],pa=k.split('-'),y=+pa[0],m=+pa[1],si=sIdx(y,m),n0=qc(q,y,m),r0=rank(sc(q,si));var a=S.days[k]||[],i=a.indexOf(q);if(i<0)a.push(q);else a.splice(i,1);if(a.length)S.days[k]=a;else delete S.days[k];save();var n1=qc(q,y,m),r1=rank(sc(q,si)),nm=o?o.q.name:'';pop=q+'|'+k;
+if(i>=0)SFX.undo();else if(r1>r0){SFX.rank();banner('Rank up! '+nm+' is now '+RN[r1],true)}else if(nodes(n1)>nodes(n0)){SFX.node();banner('Level up! '+nm+' node '+nodes(n1)+' unlocked',true)}else SFX.fill();render();pop=''}
+function done(k){S.done[k]='done';SFX.coin();save();render()}
+function tok(k,b){if(tokens(b)<1)return;S.done[k]='token';SFX.shield();S.used[b]=(S.used[b]||0)+1;save();render()}
+function go(t){tab=t;SFX.tab();render()}
+function mv(d){vm+=d;if(vm>12){vm=1;vy++}if(vm<1){vm=12;vy--}render()}
+function sv(d){sidx=Math.max(0,sidx+d);render()}
+function pendHTML(){var p=pending();if(!p.length)return'';return'<div class="card warn"><b>Penalty quests due</b>'+p.map(function(x){return'<div class="pi"><div>'+esc(x.t)+'<div class="mut">'+esc(x.p||'No penalty set')+'</div></div><div><button onclick="done(\''+x.k+'\')">Done</button> '+(tokens(x.id)>0?'<button onclick="tok(\''+x.k+'\',\''+x.id+'\')">Use token</button>':'')+'</div></div>'}).join('')+'</div>'}
+function vToday(){var c=now(),k=key(c.y,c.m,c.d);return'<div class="sub">'+MN[c.m-1]+' '+c.d+', '+c.y+' \u2022 '+sLab(sIdx(c.y,c.m))+'</div>'+pendHTML()+allQ().map(function(a){var q=a.q,on=has(k,q.id),n=qc(q.id,c.y,c.m);return'<div class="card" style="--c:'+a.b.color+'"><div class="row"><div><span class="chip">'+esc(a.b.name)+'</span><b>'+esc(q.name)+'</b>'+(q.opt?' <span class="tag">optional</span>':'')+'<div class="mut">Minimum: '+esc(q.min)+'</div><div class="mut">'+n+'/20 days \u2022 '+nodes(n)+'/5 nodes \u2022 '+tokens(q.id)+' token(s)</div></div><button class="big'+(on?' on':'')+(pop==q.id+'|'+k?' pop':'')+'" aria-label="Mark '+esc(q.name)+' done today" onclick="toggle(\''+q.id+'\',\''+k+'\')">'+(on?'\u2713':'')+'</button></div></div>'}).join('')}
+function vMonth(){var c=now();if(!vy){vy=c.y;vm=c.m}var N=dim(vy,vm),t=c.y*10000+c.m*100+c.d,nk=vy+'-'+vm;
+function cells(f,e,q){var h='';for(var d=f;d<=e;d++){var on=has(key(vy,vm,d),q.id),fu=vy*10000+vm*100+d>t;h+='<div class="cell'+(on?' on':'')+(fu?' fut':'')+(pop==q.id+'|'+key(vy,vm,d)?' pop':'')+'"'+(fu?'':' onclick="toggle(\''+q.id+'\',\''+key(vy,vm,d)+'\')"')+'>'+d+'</div>'}return'<div class="cells">'+h+'</div>'}
+return'<div class="head"><button onclick="mv(-1)">\u2039</button><span>'+MN[vm-1]+' '+vy+'</span><button onclick="mv(1)">\u203a</button></div>'+allQ().map(function(a){var q=a.q,n=qc(q.id,vy,vm);return'<div class="card" style="--c:'+a.b.color+'"><div class="row"><div><span class="chip">'+esc(a.b.name)+'</span><b>'+esc(q.name)+'</b></div><span class="mut">'+n+' days</span></div><div class="nodes">'+TH.map(function(x){return'<span class="node'+(n>=x?' on':'')+'">'+x+'</span>'}).join('')+'</div><div class="mut">Days 1\u201315</div>'+cells(1,15,q)+'<div class="mut">Days 16\u2013'+N+'</div>'+cells(16,N,q)+'</div>'}).join('')+'<div class="card"><label>Day 15 check: keep or swap a quest? Notes for '+MN[vm-1]+'</label><textarea rows="3" oninput="S.notes[\''+nk+'\']=this.value;save()">'+esc(S.notes[nk]||'')+'</textarea></div>'}
+function vSeason(){var c=now();if(sidx==null)sidx=Math.max(0,sIdx(c.y,c.m));var mm=sMon(sidx);
+return'<div class="head"><button onclick="sv(-1)">\u2039</button><span>'+sLab(sidx)+'<small>'+MN[mm[0][1]-1]+' '+mm[0][0]+' \u2013 '+MN[mm[2][1]-1]+' '+mm[2][0]+'</small></span><button onclick="sv(1)">\u203a</button></div>'+allQ().map(function(a){var q=a.q,n=sc(q.id,sidx),r=rank(n),nx=RT[r];return'<div class="card" style="--c:'+a.b.color+'"><div class="row"><div><span class="chip">'+esc(a.b.name)+'</span><b>'+esc(q.name)+'</b></div><span class="badge">'+RN[r]+'</span></div><div class="bar"><i style="width:'+Math.min(100,n/75*100)+'%"></i></div><div class="mut">'+n+' days \u2022 '+(nx?(nx-n)+' to '+RN[r+1]:'Max rank')+' \u2022 Months: '+mm.map(function(x){return qc(q.id,x[0],x[1])}).join(' / ')+'</div></div>'}).join('')}
+function vShelf(){var s=seasons().reverse();if(!s.length)return'<div class="card"><b>No finished seasons yet</b><div class="mut">Badges and rewards appear here when a season ends, three months after Season 1 starts.</div></div>';
+return s.map(function(i){return'<div class="card"><b>'+sLab(i)+'</b>'+allQ().map(function(a){var q=a.q,n=sc(q.id,i),r=rank(n),k='r|'+i+'|'+q.id;if(!r)return'';return'<div class="pi" style="--c:'+a.b.color+'"><div><span class="chip">'+esc(a.b.name)+'</span>'+esc(q.name)+' <span class="badge">'+RN[r]+'</span><div class="mut">'+n+' days \u2022 '+esc(S.rewards[r-1]||'')+'</div></div><label class="chk"><input type="checkbox" '+(S.claimed[k]?'checked':'')+' onchange="S.claimed[\''+k+'\']=this.checked;save();if(this.checked)SFX.coin()">Claimed</label></div>'}).join('')+'</div>'}).join('')}
+function upd(i,f,v){S.branches[i][f]=v;save()}
+function updq(i,j,f,v){S.branches[i].q[j][f]=(f=='goal')?parseInt(v):v;save()}
+function nq(){return{id:'q'+Date.now(),name:'New quest',min:'',goal:3,opt:false,pm:'',ps:''}}
+function addB(){S.branches.push({id:'b'+Date.now(),name:'New branch',color:'#f472b6',q:[nq()]});save();render()}
+function delB(i){if(confirm('Remove this branch? Its logged days stay saved.')){S.branches.splice(i,1);save();render()}}
+function addQ(i){var b=S.branches[i];if(b.q.length<2){b.q.push(nq());save();render()}}
+function delQ(i,j){var b=S.branches[i];if(b.q.length>1){b.q.splice(j,1);save();render()}}
+function exp(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='skilltree-backup.json';a.click()}
+function imp(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.branches)throw 0;S=d;save();render()}catch(x){alert('That file is not a Skill Tree backup.')}};r.readAsText(f)}
+function reset(){if(confirm('Erase all Skill Tree data?')){S=fresh();save();render()}}
+function vSetup(){return'<div class="card"><label>Season 1 starts (month)</label><input type="month" value="'+S.start.y+'-'+pad(S.start.m)+'" onchange="var p=this.value.split(\'-\');if(p[1]){S.start={y:+p[0],m:+p[1]};save();render()}"><label>Day rollover hour (before this hour still counts as yesterday)</label><select onchange="S.rollover=+this.value;save();render()">'+[0,3,4,5,6,7,8,10].map(function(h){return'<option value="'+h+'"'+(S.rollover==h?' selected':'')+'>'+pad(h)+':00</option>'}).join('')+'</select><label>Season goal for quests with penalties</label><select onchange="S.sgoal=+this.value;save()">'+[1,2,3,4,5].map(function(r){return'<option value="'+r+'"'+(S.sgoal==r?' selected':'')+'>'+RN[r]+' ('+RT[r-1]+' days)</option>'}).join('')+'</select></div>'+
+S.branches.map(function(b,i){return'<div class="card" style="--c:'+b.color+'"><label>Branch name</label><input value="'+esc(b.name)+'" onchange="upd('+i+',\'name\',this.value)"><label>Color</label><input type="color" value="'+b.color+'" onchange="upd('+i+',\'color\',this.value)">'+b.q.map(function(q,j){return'<div class="pi" style="display:block"><label>Quest '+(j+1)+' name</label><input value="'+esc(q.name)+'" onchange="updq('+i+','+j+',\'name\',this.value)"><label>Minimum day</label><input value="'+esc(q.min)+'" onchange="updq('+i+','+j+',\'min\',this.value)"><label>Monthly goal (nodes needed to avoid penalty)</label><select onchange="updq('+i+','+j+',\'goal\',this.value)">'+[1,2,3,4,5].map(function(n){return'<option value="'+n+'"'+(q.goal==n?' selected':'')+'>Node '+n+' ('+TH[n-1]+' days)</option>'}).join('')+'</select><label class="chk"><input type="checkbox" '+(q.opt?'checked':'')+' onchange="updq('+i+','+j+',\'opt\',this.checked)">Optional (no goal, no penalty)</label><label>Monthly make-up</label><input value="'+esc(q.pm)+'" onchange="updq('+i+','+j+',\'pm\',this.value)"><label>Season make-up</label><input value="'+esc(q.ps)+'" onchange="updq('+i+','+j+',\'ps\',this.value)">'+(b.q.length>1?'<button onclick="delQ('+i+','+j+')">Remove quest</button>':'')+'</div>'}).join('')+(b.q.length<2?'<button onclick="addQ('+i+')">+ Add second quest</button> ':'')+'<button onclick="delB('+i+')">Remove branch</button></div>'}).join('')+
+'<button onclick="addB()">+ Add branch</button><div class="card" style="margin-top:12px"><b>Season rank rewards</b>'+RN.slice(1).map(function(n,i){return'<label>'+n+' ('+RT[i]+' days)</label><input value="'+esc(S.rewards[i])+'" onchange="S.rewards['+i+']=this.value;save()">'}).join('')+'</div><div class="card"><button onclick="exp()">Export backup</button> <button onclick="document.getElementById(\'imp\').click()">Import backup</button> <button onclick="reset()">Reset all</button><input id="imp" type="file" accept=".json" hidden onchange="imp(event)"></div>'}
+function render(){var T={today:['Quests',vToday],month:['Month',vMonth],season:['Season',vSeason],shelf:['Trophies',vShelf],setup:['Forge',vSetup]};
+document.getElementById('nav').innerHTML=Object.keys(T).map(function(k){return'<button class="'+(tab==k?'on':'')+'" onclick="go(\''+k+'\')">'+T[k][0]+'</button>'}).join('');
+document.getElementById('app').innerHTML=T[tab][1]();document.getElementById('lvl').textContent='LV '+level();document.getElementById('arc').textContent='Arc '+(Math.floor(Math.max(0,sIdx(now().y,now().m))/4)+1);document.getElementById('snd').textContent=S.sound===false?'🔇':'🔊'}
+render();
 </script>
 </body>
 </html>
