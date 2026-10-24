@@ -6,55 +6,86 @@
 <title>Skill Tree</title>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#09090b;--sf:#111115;--line:#1f1f27;--tx:#ececf1;--mut:#7d7d8c;--ac:#b8a1ff;--pk:#ff8fb1}
+:root{--bg:#0b0b0d;--tx:#ededf0;--mut:#80808c;--line:#1d1d24;--ac:#b8a1ff;--pk:#ff8fb1}
 *{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--tx);font:15px/1.5 'Exo 2',system-ui,'Noto Sans JP',sans-serif;padding:16px 16px 96px;max-width:760px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;padding:4px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px;gap:10px}
-.logo{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-h1{font:800 22px 'Exo 2',sans-serif;letter-spacing:.5px}
-.jp{font-size:12px;color:var(--mut);letter-spacing:3px}
-.stats{display:flex;align-items:center;gap:6px}
-#lvl,#arc{border:1px solid var(--line);border-radius:6px;padding:2px 10px;font-weight:600;font-size:13px}
-#lvl{color:var(--pk);border-color:#ff8fb144}
-#arc{color:var(--ac);border-color:#b8a1ff44}
-nav{position:fixed;bottom:0;left:0;right:0;background:#09090bf2;border-top:1px solid var(--line);display:flex;justify-content:center;gap:2px;padding:6px;z-index:5}
-nav button{flex:1;max-width:124px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);font:600 13px 'Exo 2',sans-serif;padding:10px 4px;border-radius:0}
-nav button.on{color:var(--tx);border-bottom-color:var(--ac)}
-.card{background:var(--sf);border:1px solid var(--line);border-left:3px solid var(--c,var(--ac));border-radius:6px;padding:12px 14px;margin-bottom:10px}
-.card b{font-weight:600}
-.warn{--c:#f59e0b}
-.row,.pi{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.pi{padding:8px 0;border-top:1px solid var(--line);margin-top:8px}
-.mut,.sub{color:var(--mut);font-size:13px}
-.sub{margin-bottom:12px}
-.tag{font-size:11px;border:1px solid var(--line);border-radius:10px;padding:0 6px;color:var(--mut)}
-.chip{color:var(--c);font-size:12px;font-weight:600;margin-right:8px}
-.chip::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:1px}
-button{font:600 13px 'Exo 2',sans-serif;background:#16161c;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer}
-button:hover{border-color:var(--ac)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ac)}
-#snd{padding:3px 8px;font-size:14px}
-.big{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--c);background:none;color:#09090b;font-size:26px;flex:none;padding:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.5 'Exo 2',system-ui,'Noto Sans JP',sans-serif;padding:16px 18px 100px;max-width:560px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.back{color:var(--mut);text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
+.back:hover{color:var(--tx)}
+header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:26px}
+h1{font:800 24px 'Exo 2',sans-serif;letter-spacing:.3px}
+.stat{color:var(--mut);font-size:14px}
+#lvl{color:var(--pk)}#arc{color:var(--ac)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#0b0b0df5;border-top:1px solid var(--line);display:flex;justify-content:center;padding:4px 8px;z-index:5}
+nav button{flex:1;max-width:110px;background:none;border:0;border-top:2px solid transparent;color:var(--mut);font:600 13px 'Exo 2',sans-serif;padding:12px 4px;border-radius:0}
+nav button.on{color:var(--tx);border-top-color:var(--ac)}
+button{font-family:inherit;color:var(--tx);cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.icon{background:none;border:0;color:var(--mut);font-size:18px;padding:6px 10px}
+.icon:hover{color:var(--tx)}
+.btn{background:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--ac)}
+.link{background:none;border:0;color:var(--mut);font-size:13px;padding:10px 0;text-decoration:underline}
+.sub{color:var(--mut);font-size:14px;margin-bottom:22px}
+.sec{margin-bottom:28px}
+.sec-h,.row2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sec-h{color:var(--mut);font-size:13px;margin-bottom:4px}
+.chip{color:var(--c);font-weight:600;font-size:14px;margin-right:6px}
+.chip::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:7px}
+.qrow{display:flex;align-items:center;gap:14px;padding:13px 0;border-top:1px solid var(--line)}
+.qmain{flex:1;min-width:0}
+.qn{font-weight:600}
+.qm,.lbl{color:var(--mut);font-size:13px}
+.lbl{margin:16px 0 8px}
+.big{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--c);background:none;color:#0b0b0d;font-size:22px;flex:none;padding:0}
 .big.on{background:var(--c)}
-.pop{animation:rip .55s}
-@keyframes rip{0%{box-shadow:0 0 0 0 var(--c)}100%{box-shadow:0 0 0 16px #0000}}
-.cells{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
-.cell{width:38px;height:38px;border-radius:5px;background:#16161c;border:1px solid var(--line);color:var(--mut);font-size:11px;padding:3px;cursor:pointer}
-.cell.on{background:var(--c);border-color:var(--c);color:#09090b;font-weight:700}
-.cell.fut{opacity:.3;cursor:default}
-.nodes{display:flex;gap:10px;margin:10px 0}
-.node{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mut)}
-.node.on{background:var(--c);border-color:var(--c);color:#09090b;font-weight:700}
-.bar{height:4px;background:#1a1a22;border-radius:2px;overflow:hidden;margin:10px 0}
-.bar i{display:block;height:100%;background:var(--c)}
-.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:600;text-align:center}
+.pop{animation:rip .5s}
+@keyframes rip{0%{box-shadow:0 0 0 0 var(--c)}100%{box-shadow:0 0 0 14px #0000}}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.warn{border-color:#f59e0b66}
+.act{display:flex;gap:8px;flex:none}
+.act .btn{padding:7px 12px;font-size:13px}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-weight:600;text-align:center}
 .head small{display:block;font-size:12px;font-weight:400;color:var(--mut)}
-input,select,textarea{background:#0c0c10;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:7px;font:14px 'Exo 2',sans-serif;width:100%;margin:3px 0 8px}
-label{font-size:12px;color:var(--mut)}
-.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--tx)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.chipb{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 14px;font-size:14px}
+.chipb.on{border-color:var(--c);color:var(--tx)}
+.hm{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.cell{aspect-ratio:1;border-radius:8px;background:#121217;border:1px solid var(--line);color:var(--mut);font-size:12px;padding:0}
+.cell.on{background:var(--c);border-color:var(--c);color:#0b0b0d;font-weight:700}
+.cell:disabled{opacity:.25;cursor:default}
+.ms{display:flex;gap:10px}
+.node{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mut)}
+.node.on{background:var(--c);border-color:var(--c);color:#0b0b0d;font-weight:700}
+.bar{height:4px;background:#17171d;border-radius:2px;overflow:hidden;margin:10px 0 8px}
+.bar i{display:block;height:100%;background:var(--c)}
+.big-n{font-size:24px;font-weight:800}
+.chk{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:13px;padding:6px 0}
 .chk input{width:auto;margin:0}
-.badge{display:inline-block;border:1px solid #ff8fb166;color:var(--pk);border-radius:12px;padding:1px 11px;font-size:12px;font-weight:600;margin-right:6px}
-#toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-90px);background:#15151b;border:1px solid var(--ac);color:var(--tx);font-weight:600;padding:9px 18px;border-radius:6px;transition:transform .3s;z-index:9;pointer-events:none;text-align:center}
+input,select,textarea{background:#0e0e12;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:15px 'Exo 2',sans-serif;width:100%}
+textarea{resize:vertical}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
+.fld{margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.acc{border-top:1px solid var(--line)}
+.acc:last-of-type{border-bottom:1px solid var(--line)}
+.acc-h{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:16px 0;text-align:left}
+.acc-t{flex:1;display:flex;flex-direction:column;min-width:0}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.acc-b{padding:2px 0 20px}
+.segs{display:flex;gap:6px;margin:6px 0 18px}
+.seg{flex:1;background:none;border:1px solid var(--line);border-radius:8px;padding:8px 4px;font-size:13px;color:var(--mut)}
+.seg.on{border-color:var(--ac);color:var(--tx)}
+.qb{padding:14px 0;border-top:1px solid var(--line)}
+.qb:first-child{border-top:0;padding-top:0}
+.lr{display:grid;grid-template-columns:1fr 92px 38px;gap:8px;margin-bottom:10px;align-items:center}
+.lr .rw{grid-column:1/-1}
+.x{background:none;border:1px solid var(--line);border-radius:8px;height:38px;font-size:18px;color:var(--mut)}
+.acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.foot{text-align:center;margin-top:28px}
+#toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-90px);background:#15151b;border:1px solid var(--ac);color:var(--tx);font-weight:600;padding:9px 18px;border-radius:8px;transition:transform .3s;z-index:9;pointer-events:none;text-align:center;max-width:90vw}
 #toast.show{transform:translate(-50%,0)}
 #flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:8;background:linear-gradient(105deg,transparent 46%,#ffffffcc 49.6%,var(--ac) 50.4%,transparent 54%)}
 #flash.go{animation:sw .6s ease-out}
@@ -63,7 +94,8 @@ label{font-size:12px;color:var(--mut)}
 </style>
 </head>
 <body>
-<header><div class="logo"><h1>Skill Tree</h1><span class="jp">スキルツリー</span><span class="mut" style="font-size:11px">v5</span></div><div class="stats"><button id="snd" aria-label="Toggle sound" onclick="S.sound=S.sound===false;save();SFX.fill();render()">&#128266;</button><span id="arc"></span><span id="lvl"></span></div></header>
+<div class="top"><a class="back" href="index.html" aria-label="Back to Hub">&larr; Hub</a><button id="snd" class="icon" aria-label="Toggle sound" onclick="S.sound=S.sound===false;save();SFX.fill();render()">&#128266;</button></div>
+<header><h1>Skill Tree</h1><div class="stat"><span id="arc"></span> &middot; <span id="lvl"></span></div></header>
 <main id="app"></main>
 <nav id="nav"></nav>
 <div id="toast"></div><div id="flash"></div>
@@ -77,16 +109,18 @@ var esc=function(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){re
 function now(h){h=h==null?(S?S.rollover:6):h;var t=new Date(Date.now()-h*36e5);return{y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()}}
 var key=function(y,m,d){return y+'-'+pad(m)+'-'+pad(d)};
 var dim=function(y,m){return new Date(y,m,0).getDate()};
+function dl(){return[{n:'Bronze',p:200,r:''},{n:'Silver',p:500,r:''},{n:'Gold',p:1000,r:''}]}
+function dr(){return[{n:'Novice',p:40,r:''},{n:'Adept',p:80,r:''},{n:'Master',p:120,r:''}]}
 function fresh(){var c=now(6);return{v:3,rollover:6,sgoal:3,start:{y:c.y,m:c.m},days:{},notes:{},done:{},used:{},claimed:{},
 rewards:['Badge only','Badge + a small experience (a walk somewhere new)','Badge + time with someone you care about','Badge + a bigger outing','Badge + free pick of next season\u2019s theme or skill'],
 branches:[
-{id:'body',name:'Body',color:'#ef4444',q:[{id:'body',name:'Push-ups',min:'Daily push-ups',goal:3,opt:false,pm:'One heavy-sets session',ps:'Two heavy sessions a week for a month'},{id:'body2',name:'Gym / calisthenics',min:'One session',goal:3,opt:false,pm:'One superset session',ps:'Two superset sessions a week for a month'}]},
-{id:'study',name:'Study',color:'#3b82f6',q:[{id:'study',name:'Japanese',min:'App session (3-5 min)',goal:3,opt:false,pm:'One extra 1-hour Japanese block',ps:'One extra long block a week for a month'},{id:'study2',name:'M.E. work',min:'30 minutes',goal:3,opt:false,pm:'One extra 2-hour study block',ps:'One extra long block a week for a month'}]},
-{id:'craft',name:'Craft',color:'#a78bfa',q:[{id:'craft',name:'Violin / guitar',min:'10 minutes',goal:3,opt:false,pm:'One extended 45-60 min practice',ps:'One extended session a week for a month'},{id:'craft2',name:'Coding / game dev',min:'10 minutes',goal:3,opt:false,pm:'One extended 60 min build session',ps:'One extended session a week for a month'}]},
-{id:'bond',name:'Bond',color:'#22c55e',q:[{id:'bond',name:'Reach out',min:'One genuine message',goal:0,opt:true,pm:'',ps:''}]}]}}
-function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(r&&r.branches){r.branches.forEach(function(b){if(!b.q){b.q=[{id:b.id,name:b.quests||b.name,min:b.min||''}];delete b.quests;delete b.min}b.q.forEach(function(q){if(q.goal==null){q.goal=b.goal!=null?b.goal:3;q.opt=!!b.opt;q.pm=b.pm||'';q.ps=b.ps||''}});delete b.goal;delete b.opt;delete b.pm;delete b.ps});return r}}catch(e){}return fresh()}
+{id:'body',name:'Body',color:'#ef4444',ranks:dr(),lranks:dl(),q:[{id:'body',name:'Push-ups',min:'Daily push-ups',gd:12,sg:36,pts:1,pm:'One heavy-sets session',ps:'Two heavy sessions a week for a month'},{id:'body2',name:'Gym / calisthenics',min:'One session',gd:12,sg:36,pts:1,pm:'One superset session',ps:'Two superset sessions a week for a month'}]},
+{id:'study',name:'Study',color:'#3b82f6',ranks:dr(),lranks:dl(),q:[{id:'study',name:'Japanese',min:'App session (3-5 min)',gd:12,sg:36,pts:1,pm:'One extra 1-hour Japanese block',ps:'One extra long block a week for a month'},{id:'study2',name:'M.E. work',min:'30 minutes',gd:12,sg:36,pts:1,pm:'One extra 2-hour study block',ps:'One extra long block a week for a month'}]},
+{id:'craft',name:'Craft',color:'#a78bfa',ranks:dr(),lranks:dl(),q:[{id:'craft',name:'Violin / guitar',min:'10 minutes',gd:12,sg:36,pts:1,pm:'One extended 45-60 min practice',ps:'One extended session a week for a month'},{id:'craft2',name:'Coding / game dev',min:'10 minutes',gd:12,sg:36,pts:1,pm:'One extended 60 min build session',ps:'One extended session a week for a month'}]},
+{id:'bond',name:'Bond',color:'#22c55e',ranks:dr(),lranks:dl(),q:[{id:'bond',name:'Reach out',min:'One genuine message',gd:0,sg:0,pts:1,pm:'',ps:''}]}]}}
+function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(r&&r.branches){r.branches.forEach(function(b){if(!b.ranks)b.ranks=dr();if(!b.lranks)b.lranks=dl();if(!b.q){b.q=[{id:b.id,name:b.quests||b.name,min:b.min||''}];delete b.quests;delete b.min}b.q.forEach(function(q){if(q.pts==null)q.pts=1;if(q.goal==null&&q.gd==null){q.goal=b.goal!=null?b.goal:3;q.opt=!!b.opt;q.pm=b.pm||'';q.ps=b.ps||''}if(q.gd==null){q.gd=(q.opt||!q.goal)?0:TH[q.goal-1];q.sg=q.opt?0:RT[(r.sgoal||3)-1];delete q.goal;delete q.opt}});delete b.goal;delete b.opt;delete b.pm;delete b.ps});return r}}catch(e){}return fresh()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-S=load();save();
+S=load();if(!S.th)S.th=TH.slice();TH=S.th;save();
 function has(k,q){return(S.days[k]||[]).indexOf(q)>-1}
 function qc(q,y,m){var n=0;for(var d=1;d<=dim(y,m);d++)if(has(key(y,m,d),q))n++;return n}
 function mi(y,m){return y*12+m-1}
@@ -98,49 +132,78 @@ function allQ(){var o=[];S.branches.forEach(function(b){b.q.forEach(function(q){
 var nodes=function(n){return TH.filter(function(t){return n>=t}).length};
 var rank=function(n){return RT.filter(function(t){return n>=t}).length};
 function months(incl){var c=now(),o=[],y=S.start.y,m=S.start.m;while(y<c.y||(y==c.y&&m<=c.m)){if(incl||y<c.y||m<c.m)o.push([y,m]);if(++m>12){m=1;y++}}return o}
-function earned(q){return months(false).filter(function(x){return qc(q,x[0],x[1])>=20}).length}
+function earned(q){return months(false).filter(function(x){return qc(q,x[0],x[1])>=TH[4]}).length}
 function tokens(q){return earned(q)-(S.used[q]||0)}
 function level(){var n=0;months(true).forEach(function(x){allQ().forEach(function(o){n+=nodes(qc(o.q.id,x[0],x[1]))})});return n}
+function rd(x){return Math.round(x*100)/100}
+function rks(b){return b.ranks.filter(function(r){return r.p>0}).sort(function(a,c){return a.p-c.p})}
+function bp(b,i){var n=0;b.q.forEach(function(q){n+=sc(q.id,i)*(q.pts||0)});return rd(n)}
+function bri(b,p){return rks(b).filter(function(r){return p>=r.p}).length}
+function bmax(b){var c=now(),top=Math.max(0,sIdx(c.y,c.m)),m=0;for(var i=0;i<=top;i++)m=Math.max(m,bri(b,bp(b,i)));return m}
+function rname(b,k){var r=rks(b)[k-1];return r?r.n:'None'}
+function lks(b){return(b.lranks||[]).filter(function(r){return r.p>0}).sort(function(a,c){return a.p-c.p})}
+function lp(b){var c=now(),top=Math.max(0,sIdx(c.y,c.m)),n=0;for(var i=0;i<=top;i++)n+=bp(b,i);return rd(n)}
+function lri(b){var t=lp(b);return lks(b).filter(function(r){return t>=r.p}).length}
+function updl(i,k,f,v){S.branches[i].lranks[k][f]=(f=='p')?Math.max(0,parseFloat(v)||0):v;save()}
+function addl(i){var R=S.branches[i].lranks,m=0;R.forEach(function(r){m=Math.max(m,r.p)});R.push({n:'New rank',p:m+300,r:''});save();render()}
+function dell(i,k){S.branches[i].lranks.splice(k,1);save();render()}
+function updr(i,k,f,v){S.branches[i].ranks[k][f]=(f=='p')?Math.max(0,parseFloat(v)||0):v;save()}
+function addr(i){var R=S.branches[i].ranks,m=0;R.forEach(function(r){m=Math.max(m,r.p)});R.push({n:'New rank',p:m+40,r:''});save();render()}
+function delr(i,k){S.branches[i].ranks.splice(k,1);save();render()}
+function updth(k,v){S.th[k]=Math.max(1,parseInt(v)||1);S.th.sort(function(a,b){return a-b});TH=S.th;save();render()}
 function seasons(){var c=now(),cur=mi(c.y,c.m),o=[];for(var i=0;mi(S.start.y,S.start.m)+i*3+2<cur;i++)o.push(i);return o}
-function pending(){var o=[];months(false).forEach(function(x,i){if(!i)return;allQ().forEach(function(a){var q=a.q,k='m|'+x[0]+'-'+x[1]+'|'+q.id,n=qc(q.id,x[0],x[1]);if(q.opt||!q.goal||S.done[k])return;if(n<TH[q.goal-1])o.push({k:k,id:q.id,p:q.pm,t:a.b.name+' \u2022 '+q.name+' \u2022 '+MN[x[1]-1]+' '+x[0]+': '+n+' of '+TH[q.goal-1]+' days'})})});
-seasons().forEach(function(i){allQ().forEach(function(a){var q=a.q,k='s|'+i+'|'+q.id,n=sc(q.id,i);if(q.opt||!q.goal||S.done[k])return;if(rank(n)<S.sgoal)o.push({k:k,id:q.id,p:q.ps,t:a.b.name+' \u2022 '+q.name+' \u2022 '+sLab(i)+': '+RN[rank(n)]})})});return o}
-var AC=null,pop='';
+function pending(){var o=[];months(false).forEach(function(x,i){if(!i)return;allQ().forEach(function(a){var q=a.q,k='m|'+x[0]+'-'+x[1]+'|'+q.id,n=qc(q.id,x[0],x[1]);if(!q.gd||S.done[k])return;if(n<q.gd)o.push({k:k,id:q.id,p:q.pm,t:a.b.name+' \u2022 '+q.name+' \u2022 '+MN[x[1]-1]+' '+x[0]+': '+n+' of '+q.gd+' days'})})});
+seasons().forEach(function(i){allQ().forEach(function(a){var q=a.q,k='s|'+i+'|'+q.id,n=sc(q.id,i);if(!q.sg||S.done[k])return;if(n<q.sg)o.push({k:k,id:q.id,p:q.ps,t:a.b.name+' \u2022 '+q.name+' \u2022 '+sLab(i)+': '+n+' of '+q.sg+' days'})})});return o}
+var AC=null,pop='',mq=null,sopen=null,ssub='q';
+function so(k){sopen=(sopen==k?null:k);ssub='q';render()}
+function sset(k){ssub=k;render()}
+function setmq(id){mq=id;render()}
 function tn(f,d,t,v,w){if(S&&S.sound===false)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),a=AC.currentTime+(w||0);o.type=t||'sine';o.frequency.setValueAtTime(f,a);g.gain.setValueAtTime(.0001,a);g.gain.exponentialRampToValueAtTime(v||.08,a+.01);g.gain.exponentialRampToValueAtTime(.0001,a+d);o.connect(g);g.connect(AC.destination);o.start(a);o.stop(a+d+.02)}catch(e){}}
 var SFX={fill:function(){tn(659,.12,'triangle',.09);tn(988,.22,'triangle',.07,.07)},undo:function(){tn(330,.12,'sine',.06)},tab:function(){tn(520,.04,'square',.02)},
 node:function(){[523,659,784,1047].forEach(function(f,i){tn(f,.25,'triangle',.08,i*.08)});tn(2093,.5,'sine',.03,.3)},
 rank:function(){[392,523,659,784,1047,1319].forEach(function(f,i){tn(f,.4,'sawtooth',.04,i*.1);tn(f*2,.4,'sine',.03,i*.1)})},
 coin:function(){tn(988,.08,'square',.04);tn(1319,.3,'square',.04,.08)},shield:function(){tn(220,.25,'sawtooth',.05);tn(440,.35,'triangle',.06,.1)}};
 function banner(msg,fl){var t=document.getElementById('toast');t.textContent=msg;t.className='show';clearTimeout(banner.t);banner.t=setTimeout(function(){t.className=''},2400);if(fl){var f=document.getElementById('flash');f.className='';void f.offsetWidth;f.className='go'}}
-function toggle(q,k){var o=allQ().filter(function(a){return a.q.id==q})[0],pa=k.split('-'),y=+pa[0],m=+pa[1],si=sIdx(y,m),n0=qc(q,y,m),r0=rank(sc(q,si));var a=S.days[k]||[],i=a.indexOf(q);if(i<0)a.push(q);else a.splice(i,1);if(a.length)S.days[k]=a;else delete S.days[k];save();var n1=qc(q,y,m),r1=rank(sc(q,si)),nm=o?o.q.name:'';pop=q+'|'+k;
-if(i>=0)SFX.undo();else if(r1>r0){SFX.rank();banner('Rank up! '+nm+' is now '+RN[r1],true)}else if(nodes(n1)>nodes(n0)){SFX.node();banner('Level up! '+nm+' node '+nodes(n1)+' unlocked',true)}else SFX.fill();render();pop=''}
+function toggle(q,k){var o=allQ().filter(function(a){return a.q.id==q})[0],pa=k.split('-'),y=+pa[0],m=+pa[1],si=sIdx(y,m),n0=qc(q,y,m),r0=o?bri(o.b,bp(o.b,si)):0,h0=o?bmax(o.b):0,L0=o?lri(o.b):0;var a=S.days[k]||[],i=a.indexOf(q);if(i<0)a.push(q);else a.splice(i,1);if(a.length)S.days[k]=a;else delete S.days[k];save();var n1=qc(q,y,m),r1=o?bri(o.b,bp(o.b,si)):0,L1=o?lri(o.b):0,nm=o?o.q.name:'';pop=q+'|'+k;
+if(i>=0)SFX.undo();else if(L1>L0){SFX.rank();banner('Lifetime rank up! '+o.b.name+': '+lks(o.b)[L1-1].n,true)}else if(r1>r0){SFX.rank();banner((r1>h0?'Rank up! ':'Season badge! ')+o.b.name+': '+rname(o.b,r1),true)}else if(nodes(n1)>nodes(n0)){SFX.node();banner('Milestone '+nodes(n1)+' reached: '+nm,true)}else SFX.fill();render();pop=''}
 function done(k){S.done[k]='done';SFX.coin();save();render()}
 function tok(k,b){if(tokens(b)<1)return;S.done[k]='token';SFX.shield();S.used[b]=(S.used[b]||0)+1;save();render()}
 function go(t){tab=t;SFX.tab();render()}
 function mv(d){vm+=d;if(vm>12){vm=1;vy++}if(vm<1){vm=12;vy--}render()}
 function sv(d){sidx=Math.max(0,sidx+d);render()}
-function pendHTML(){var p=pending();if(!p.length)return'';return'<div class="card warn"><b>Penalty quests due</b>'+p.map(function(x){return'<div class="pi"><div>'+esc(x.t)+'<div class="mut">'+esc(x.p||'No penalty set')+'</div></div><div><button onclick="done(\''+x.k+'\')">Done</button> '+(tokens(x.id)>0?'<button onclick="tok(\''+x.k+'\',\''+x.id+'\')">Use token</button>':'')+'</div></div>'}).join('')+'</div>'}
-function vToday(){var c=now(),k=key(c.y,c.m,c.d);return'<div class="sub">'+MN[c.m-1]+' '+c.d+', '+c.y+' \u2022 '+sLab(sIdx(c.y,c.m))+'</div>'+pendHTML()+allQ().map(function(a){var q=a.q,on=has(k,q.id),n=qc(q.id,c.y,c.m);return'<div class="card" style="--c:'+a.b.color+'"><div class="row"><div><span class="chip">'+esc(a.b.name)+'</span><b>'+esc(q.name)+'</b>'+(q.opt?' <span class="tag">optional</span>':'')+'<div class="mut">Minimum: '+esc(q.min)+'</div><div class="mut">'+n+'/20 days \u2022 '+nodes(n)+'/5 nodes \u2022 '+tokens(q.id)+' token(s)</div></div><button class="big'+(on?' on':'')+(pop==q.id+'|'+k?' pop':'')+'" aria-label="Mark '+esc(q.name)+' done today" onclick="toggle(\''+q.id+'\',\''+k+'\')">'+(on?'\u2713':'')+'</button></div></div>'}).join('')}
-function vMonth(){var c=now();if(!vy){vy=c.y;vm=c.m}var N=dim(vy,vm),t=c.y*10000+c.m*100+c.d,nk=vy+'-'+vm;
-function cells(f,e,q){var h='';for(var d=f;d<=e;d++){var on=has(key(vy,vm,d),q.id),fu=vy*10000+vm*100+d>t;h+='<div class="cell'+(on?' on':'')+(fu?' fut':'')+(pop==q.id+'|'+key(vy,vm,d)?' pop':'')+'"'+(fu?'':' onclick="toggle(\''+q.id+'\',\''+key(vy,vm,d)+'\')"')+'>'+d+'</div>'}return'<div class="cells">'+h+'</div>'}
-return'<div class="head"><button onclick="mv(-1)">\u2039</button><span>'+MN[vm-1]+' '+vy+'</span><button onclick="mv(1)">\u203a</button></div>'+allQ().map(function(a){var q=a.q,n=qc(q.id,vy,vm);return'<div class="card" style="--c:'+a.b.color+'"><div class="row"><div><span class="chip">'+esc(a.b.name)+'</span><b>'+esc(q.name)+'</b></div><span class="mut">'+n+' days</span></div><div class="nodes">'+TH.map(function(x){return'<span class="node'+(n>=x?' on':'')+'">'+x+'</span>'}).join('')+'</div><div class="mut">Days 1\u201315</div>'+cells(1,15,q)+'<div class="mut">Days 16\u2013'+N+'</div>'+cells(16,N,q)+'</div>'}).join('')+'<div class="card"><label>Day 15 check: keep or swap a quest? Notes for '+MN[vm-1]+'</label><textarea rows="3" oninput="S.notes[\''+nk+'\']=this.value;save()">'+esc(S.notes[nk]||'')+'</textarea></div>'}
+function pendHTML(){var p=pending();if(!p.length)return'';return'<div class="card warn"><div class="qm">Penalty quests due</div>'+p.map(function(x){return'<div class="qrow"><div class="qmain"><div class="qn">'+esc(x.p||'No penalty set')+'</div><div class="qm">'+esc(x.t)+'</div></div><div class="act"><button class="btn" onclick="done(\''+x.k+'\')">Done</button>'+(tokens(x.id)>0?'<button class="btn" onclick="tok(\''+x.k+'\',\''+x.id+'\')">Use token</button>':'')+'</div></div>'}).join('')+'</div>'}
+function ph(prev,next,title,sub){return'<div class="head"><button class="icon" aria-label="Previous" onclick="'+prev+'">\u2039</button><span>'+title+(sub?'<small>'+sub+'</small>':'')+'</span><button class="icon" aria-label="Next" onclick="'+next+'">\u203a</button></div>'}
+function claim(ck,txt){return'<label class="chk"><input type="checkbox" '+(S.claimed[ck]?'checked':'')+' onchange="S.claimed[\''+ck+'\']=this.checked;save();if(this.checked)SFX.coin()"><span>'+txt+'</span></label>'}
+function vToday(){var c=now(),k=key(c.y,c.m,c.d),si=sIdx(c.y,c.m);return'<div class="sub">'+MN[c.m-1]+' '+c.d+' \u2022 '+sLab(si)+'</div>'+pendHTML()+S.branches.map(function(b){return'<div class="sec" style="--c:'+b.color+'"><div class="sec-h"><span class="chip">'+esc(b.name)+'</span><span>'+bp(b,si)+' pts this season</span></div>'+b.q.map(function(q){var on=has(k,q.id),n=qc(q.id,c.y,c.m);return'<div class="qrow"><div class="qmain"><div class="qn">'+esc(q.name)+'</div><div class="qm">'+n+(q.gd?' of '+q.gd:'')+' days this month \u2022 +'+q.pts+' pt</div></div><button class="big'+(on?' on':'')+(pop==q.id+'|'+k?' pop':'')+'" aria-label="Mark '+esc(q.name)+' done today" onclick="toggle(\''+q.id+'\',\''+k+'\')">'+(on?'\u2713':'')+'</button></div>'}).join('')+'</div>'}).join('')}
+function vMonth(){var c=now();if(!vy){vy=c.y;vm=c.m}var A=allQ();if(!A.length)return'';if(!mq||!A.some(function(a){return a.q.id==mq}))mq=A[0].q.id;var cur=A.filter(function(a){return a.q.id==mq})[0],q=cur.q,N=dim(vy,vm),t=c.y*10000+c.m*100+c.d,nk=vy+'-'+vm,n=qc(q.id,vy,vm);
+function cells(f,e){var h='';for(var d=f;d<=e;d++){var on=has(key(vy,vm,d),q.id),fu=vy*10000+vm*100+d>t;h+='<button class="cell'+(on?' on':'')+(pop==q.id+'|'+key(vy,vm,d)?' pop':'')+'"'+(fu?' disabled':' onclick="toggle(\''+q.id+'\',\''+key(vy,vm,d)+'\')"')+'>'+d+'</button>'}return'<div class="hm">'+h+'</div>'}
+return ph('mv(-1)','mv(1)',MN[vm-1]+' '+vy)+'<div class="chips">'+A.map(function(a){return'<button class="chipb'+(a.q.id==mq?' on':'')+'" style="--c:'+a.b.color+'" onclick="setmq(\''+a.q.id+'\')">'+esc(a.q.name)+'</button>'}).join('')+'</div><div class="sec" style="--c:'+cur.b.color+'"><div class="lbl">Days 1\u201315</div>'+cells(1,15)+'<div class="lbl">Days 16\u2013'+N+'</div>'+cells(16,N)+'<div class="lbl">'+n+' days \u2022 milestones</div><div class="ms">'+TH.map(function(x){return'<span class="node'+(n>=x?' on':'')+'">'+x+'</span>'}).join('')+'</div></div><div class="lbl">Notes for '+MN[vm-1]+'</div><textarea rows="3" placeholder="Day 15 check: keep or swap a quest?" oninput="S.notes[\''+nk+'\']=this.value;save()">'+esc(S.notes[nk]||'')+'</textarea>'}
 function vSeason(){var c=now();if(sidx==null)sidx=Math.max(0,sIdx(c.y,c.m));var mm=sMon(sidx);
-return'<div class="head"><button onclick="sv(-1)">\u2039</button><span>'+sLab(sidx)+'<small>'+MN[mm[0][1]-1]+' '+mm[0][0]+' \u2013 '+MN[mm[2][1]-1]+' '+mm[2][0]+'</small></span><button onclick="sv(1)">\u203a</button></div>'+allQ().map(function(a){var q=a.q,n=sc(q.id,sidx),r=rank(n),nx=RT[r];return'<div class="card" style="--c:'+a.b.color+'"><div class="row"><div><span class="chip">'+esc(a.b.name)+'</span><b>'+esc(q.name)+'</b></div><span class="badge">'+RN[r]+'</span></div><div class="bar"><i style="width:'+Math.min(100,n/75*100)+'%"></i></div><div class="mut">'+n+' days \u2022 '+(nx?(nx-n)+' to '+RN[r+1]:'Max rank')+' \u2022 Months: '+mm.map(function(x){return qc(q.id,x[0],x[1])}).join(' / ')+'</div></div>'}).join('')}
-function vShelf(){var s=seasons().reverse();if(!s.length)return'<div class="card"><b>No finished seasons yet</b><div class="mut">Badges and rewards appear here when a season ends, three months after Season 1 starts.</div></div>';
-return s.map(function(i){return'<div class="card"><b>'+sLab(i)+'</b>'+allQ().map(function(a){var q=a.q,n=sc(q.id,i),r=rank(n),k='r|'+i+'|'+q.id;if(!r)return'';return'<div class="pi" style="--c:'+a.b.color+'"><div><span class="chip">'+esc(a.b.name)+'</span>'+esc(q.name)+' <span class="badge">'+RN[r]+'</span><div class="mut">'+n+' days \u2022 '+esc(S.rewards[r-1]||'')+'</div></div><label class="chk"><input type="checkbox" '+(S.claimed[k]?'checked':'')+' onchange="S.claimed[\''+k+'\']=this.checked;save();if(this.checked)SFX.coin()">Claimed</label></div>'}).join('')+'</div>'}).join('')}
+return ph('sv(-1)','sv(1)',sLab(sidx),MN[mm[0][1]-1]+' '+mm[0][0]+' \u2013 '+MN[mm[2][1]-1]+' '+mm[2][0])+S.branches.map(function(b){var p=bp(b,sidx),k=bri(b,p),R=rks(b),nx=R[k],pv=k?R[k-1].p:0,h=bmax(b),L=lri(b);return'<div class="sec" style="--c:'+b.color+'"><div class="row2"><span class="chip">'+esc(b.name)+'</span><span><b class="big-n">'+p+'</b> <span class="qm">pts</span></span></div><div class="bar"><i style="width:'+(nx?Math.min(100,(p-pv)/(nx.p-pv)*100):100)+'%"></i></div><div class="row2 qm"><span>'+(k?esc(R[k-1].n):'No rank yet')+'</span><span>'+(nx?rd(nx.p-p)+' to '+esc(nx.n):(R.length?'Top rank':'No ranks set'))+'</span></div><div class="qm" style="margin-top:8px">Best season rank: '+(h?esc(rname(b,h)):'none')+' \u2022 Lifetime '+lp(b)+' pts'+(L?' ('+esc(lks(b)[L-1].n)+')':'')+'</div><div class="qm">'+b.q.map(function(q){return esc(q.name)+' '+sc(q.id,sidx)+'d'}).join(' \u2022 ')+'</div></div>'}).join('')}
+function vShelf(){var s=seasons().reverse(),h='<div class="lbl" style="margin-top:0">Lifetime ranks</div>'+S.branches.map(function(b){var t=lp(b),k=lri(b),L=lks(b),nx=L[k],pv=k?L[k-1].p:0;return'<div class="sec" style="--c:'+b.color+'"><div class="row2"><span class="chip">'+esc(b.name)+'</span><span><b class="big-n">'+t+'</b> <span class="qm">pts</span></span></div><div class="bar"><i style="width:'+(nx?Math.min(100,(t-pv)/(nx.p-pv)*100):100)+'%"></i></div><div class="row2 qm"><span>'+(k?esc(L[k-1].n):'No rank yet')+'</span><span>'+(nx?rd(nx.p-t)+' to '+esc(nx.n):(L.length?'Top rank':'No ranks set'))+'</span></div>'+L.slice(0,k).filter(function(r){return r.r}).map(function(r){return claim('l|'+b.id+'|'+r.p,esc(r.n)+' \u2022 '+esc(r.r))}).join('')+'</div>'}).join('')+'<div class="lbl">Finished seasons</div>';
+if(!s.length)return h+'<div class="qm">Season badges show up here when a season ends.</div>';
+return h+s.map(function(i){var rows=S.branches.map(function(b){var p=bp(b,i),k=bri(b,p);if(!k)return'';var r=rks(b)[k-1];return'<div class="qrow" style="--c:'+b.color+'"><div class="qmain"><span class="chip">'+esc(b.name)+'</span><b>'+esc(r.n)+'</b> <span class="qm">'+p+' pts</span></div></div>'+(r.r?claim('r|'+i+'|'+b.id,esc(r.r)):'')}).join('');return'<div class="sec"><div class="sec-h"><span>'+sLab(i)+'</span></div>'+(rows||'<div class="qm">No rank earned</div>')+'</div>'}).join('')}
 function upd(i,f,v){S.branches[i][f]=v;save()}
-function updq(i,j,f,v){S.branches[i].q[j][f]=(f=='goal')?parseInt(v):v;save()}
-function nq(){return{id:'q'+Date.now(),name:'New quest',min:'',goal:3,opt:false,pm:'',ps:''}}
-function addB(){S.branches.push({id:'b'+Date.now(),name:'New branch',color:'#f472b6',q:[nq()]});save();render()}
+function updq(i,j,f,v){S.branches[i].q[j][f]=(f=='gd'||f=='sg')?Math.max(0,parseInt(v)||0):(f=='pts'?Math.max(0,parseFloat(v)||0):v);save()}
+function nq(){return{id:'q'+Date.now()+Math.random().toString(36).slice(2,6),name:'New quest',min:'',gd:12,sg:36,pts:1,pm:'',ps:''}}
+function addB(){S.branches.push({id:'b'+Date.now(),name:'New branch',color:'#f472b6',ranks:dr(),lranks:dl(),q:[nq()]});save();render()}
 function delB(i){if(confirm('Remove this branch? Its logged days stay saved.')){S.branches.splice(i,1);save();render()}}
-function addQ(i){var b=S.branches[i];if(b.q.length<2){b.q.push(nq());save();render()}}
+function addQ(i){S.branches[i].q.push(nq());save();render()}
 function delQ(i,j){var b=S.branches[i];if(b.q.length>1){b.q.splice(j,1);save();render()}}
 function exp(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='skilltree-backup.json';a.click()}
 function imp(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.branches)throw 0;S=d;save();render()}catch(x){alert('That file is not a Skill Tree backup.')}};r.readAsText(f)}
 function reset(){if(confirm('Erase all Skill Tree data?')){S=fresh();save();render()}}
-function vSetup(){return'<div class="card"><label>Season 1 starts (month)</label><input type="month" value="'+S.start.y+'-'+pad(S.start.m)+'" onchange="var p=this.value.split(\'-\');if(p[1]){S.start={y:+p[0],m:+p[1]};save();render()}"><label>Day rollover hour (before this hour still counts as yesterday)</label><select onchange="S.rollover=+this.value;save();render()">'+[0,3,4,5,6,7,8,10].map(function(h){return'<option value="'+h+'"'+(S.rollover==h?' selected':'')+'>'+pad(h)+':00</option>'}).join('')+'</select><label>Season goal for quests with penalties</label><select onchange="S.sgoal=+this.value;save()">'+[1,2,3,4,5].map(function(r){return'<option value="'+r+'"'+(S.sgoal==r?' selected':'')+'>'+RN[r]+' ('+RT[r-1]+' days)</option>'}).join('')+'</select></div>'+
-S.branches.map(function(b,i){return'<div class="card" style="--c:'+b.color+'"><label>Branch name</label><input value="'+esc(b.name)+'" onchange="upd('+i+',\'name\',this.value)"><label>Color</label><input type="color" value="'+b.color+'" onchange="upd('+i+',\'color\',this.value)">'+b.q.map(function(q,j){return'<div class="pi" style="display:block"><label>Quest '+(j+1)+' name</label><input value="'+esc(q.name)+'" onchange="updq('+i+','+j+',\'name\',this.value)"><label>Minimum day</label><input value="'+esc(q.min)+'" onchange="updq('+i+','+j+',\'min\',this.value)"><label>Monthly goal (nodes needed to avoid penalty)</label><select onchange="updq('+i+','+j+',\'goal\',this.value)">'+[1,2,3,4,5].map(function(n){return'<option value="'+n+'"'+(q.goal==n?' selected':'')+'>Node '+n+' ('+TH[n-1]+' days)</option>'}).join('')+'</select><label class="chk"><input type="checkbox" '+(q.opt?'checked':'')+' onchange="updq('+i+','+j+',\'opt\',this.checked)">Optional (no goal, no penalty)</label><label>Monthly make-up</label><input value="'+esc(q.pm)+'" onchange="updq('+i+','+j+',\'pm\',this.value)"><label>Season make-up</label><input value="'+esc(q.ps)+'" onchange="updq('+i+','+j+',\'ps\',this.value)">'+(b.q.length>1?'<button onclick="delQ('+i+','+j+')">Remove quest</button>':'')+'</div>'}).join('')+(b.q.length<2?'<button onclick="addQ('+i+')">+ Add second quest</button> ':'')+'<button onclick="delB('+i+')">Remove branch</button></div>'}).join('')+
-'<button onclick="addB()">+ Add branch</button><div class="card" style="margin-top:12px"><b>Season rank rewards</b>'+RN.slice(1).map(function(n,i){return'<label>'+n+' ('+RT[i]+' days)</label><input value="'+esc(S.rewards[i])+'" onchange="S.rewards['+i+']=this.value;save()">'}).join('')+'</div><div class="card"><button onclick="exp()">Export backup</button> <button onclick="document.getElementById(\'imp\').click()">Import backup</button> <button onclick="reset()">Reset all</button><input id="imp" type="file" accept=".json" hidden onchange="imp(event)"></div>'}
-function render(){var T={today:['Quests',vToday],month:['Month',vMonth],season:['Season',vSeason],shelf:['Trophies',vShelf],setup:['Forge',vSetup]};
+function acc(k,t,sub,fn,col){var o=sopen==k;return'<div class="acc"><button class="acc-h" onclick="so(\''+k+'\')"><span class="dot" style="background:'+(col||'var(--line)')+'"></span><span class="acc-t"><b>'+esc(t)+'</b><span class="qm">'+esc(sub)+'</span></span><span class="qm">'+(o?'\u2212':'+')+'</span></button>'+(o?'<div class="acc-b">'+fn()+'</div>':'')+'</div>'}
+function fl(lb,inp){return'<div class="fld"><label>'+lb+'</label>'+inp+'</div>'}
+function ladder(i,L,kind){var l=kind=='l',a=l?'updl(':'updr(';return'<div class="qm" style="margin-bottom:10px">'+(l?'Points add up across all seasons and never reset.':'Points reset every season. The best rank you reach is kept.')+'</div><div class="lr qm"><span>Rank name</span><span>'+(l?'Total pts':'Season pts')+'</span><span></span></div>'+L.map(function(r,k){var u=a+i+','+k+',';return'<div class="lr"><input value="'+esc(r.n)+'" onchange="'+u+'\'n\',this.value)"><input type="number" min="0" step="any" inputmode="decimal" value="'+r.p+'" onchange="'+u+'\'p\',this.value)"><button class="x" aria-label="Remove rank" onclick="'+(l?'dell(':'delr(')+i+','+k+')">\u00d7</button><input class="rw" placeholder="Reward (optional)" value="'+esc(r.r)+'" onchange="'+u+'\'r\',this.value)"></div>'}).join('')+'<button class="btn" onclick="'+(l?'addl(':'addr(')+i+')">+ Add rank</button>'}
+function branchEd(b,i){var t=ssub,seg=[['q','Quests'],['sr','Season ranks'],['lr','Lifetime ranks']].map(function(x){return'<button class="seg'+(t==x[0]?' on':'')+'" onclick="sset(\''+x[0]+'\')">'+x[1]+'</button>'}).join(''),body;
+if(t=='q')body=b.q.map(function(q,j){var u='updq('+i+','+j+',';return'<div class="qb">'+fl('Quest name','<input value="'+esc(q.name)+'" onchange="'+u+'\'name\',this.value);render()">')+fl('Minimum for a day to count','<input value="'+esc(q.min)+'" onchange="'+u+'\'min\',this.value)">')+'<div class="g3">'+fl('Points each','<input type="number" min="0" step="any" inputmode="decimal" value="'+q.pts+'" onchange="'+u+'\'pts\',this.value)">')+fl('Month goal (days)','<input type="number" min="0" max="31" inputmode="numeric" value="'+q.gd+'" onchange="'+u+'\'gd\',this.value)">')+fl('Season goal (days)','<input type="number" min="0" max="93" inputmode="numeric" value="'+q.sg+'" onchange="'+u+'\'sg\',this.value)">')+'</div>'+fl('Make-up if month goal missed','<input value="'+esc(q.pm)+'" onchange="'+u+'\'pm\',this.value)">')+fl('Make-up if season goal missed','<input value="'+esc(q.ps)+'" onchange="'+u+'\'ps\',this.value)">')+(b.q.length>1?'<button class="link" onclick="delQ('+i+','+j+')">Remove quest</button>':'')+'</div>'}).join('')+'<button class="btn" onclick="addQ('+i+')">+ Add quest</button>';
+else body=ladder(i,t=='sr'?b.ranks:(b.lranks||[]),t=='sr'?'s':'l');
+return'<div class="g2">'+fl('Branch name','<input value="'+esc(b.name)+'" onchange="upd('+i+',\'name\',this.value);render()">')+fl('Color','<input type="color" value="'+b.color+'" onchange="upd('+i+',\'color\',this.value);render()">')+'</div><div class="segs">'+seg+'</div>'+body+'<div><button class="link" onclick="delB('+i+')">Remove branch</button></div>'}
+function vSetup(){var gen=function(){return fl('Season 1 starts','<input type="month" value="'+S.start.y+'-'+pad(S.start.m)+'" onchange="var p=this.value.split(\'-\');if(p[1]){S.start={y:+p[0],m:+p[1]};save();render()}">')+fl('Day starts at','<select onchange="S.rollover=+this.value;save();render()">'+[0,3,4,5,6,7,8,10].map(function(h){return'<option value="'+h+'"'+(S.rollover==h?' selected':'')+'>'+pad(h)+':00</option>'}).join('')+'</select>')+'<label>Milestones (days in a month)</label><div class="g5">'+TH.map(function(t,k){return'<input type="number" min="1" max="31" inputmode="numeric" value="'+t+'" onchange="updth('+k+',this.value)" aria-label="Milestone '+(k+1)+'">'}).join('')+'</div>'},
+data=function(){return'<div class="acts"><button class="btn" onclick="exp()">Export backup</button><button class="btn" onclick="document.getElementById(\'imp\').click()">Import backup</button><button class="link" onclick="reset()">Reset all</button></div><input id="imp" type="file" accept=".json" hidden onchange="imp(event)">'};
+return acc('gen','General','Start month, day start, milestones',gen)+S.branches.map(function(b,i){return acc('b'+i,b.name,b.q.map(function(q){return q.name}).join(' \u2022 '),function(){return branchEd(b,i)},b.color)}).join('')+'<div style="margin:16px 0"><button class="btn" onclick="addB()">+ Add branch</button></div>'+acc('data','Data','Backup and reset',data)+'<div class="qm foot">Skill Tree v10</div>'}
+function render(){var T={today:['Quests',vToday],month:['Month',vMonth],season:['Season',vSeason],shelf:['Trophies',vShelf],setup:['Setup',vSetup]};
 document.getElementById('nav').innerHTML=Object.keys(T).map(function(k){return'<button class="'+(tab==k?'on':'')+'" onclick="go(\''+k+'\')">'+T[k][0]+'</button>'}).join('');
 document.getElementById('app').innerHTML=T[tab][1]();document.getElementById('lvl').textContent='LV '+level();document.getElementById('arc').textContent='Arc '+(Math.floor(Math.max(0,sIdx(now().y,now().m))/4)+1);document.getElementById('snd').textContent=S.sound===false?'🔇':'🔊'}
 render();
